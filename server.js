@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
+const sendEmail = require("./scripts/email/index");
 require('dotenv').config();
 
 // Routes
@@ -39,6 +40,22 @@ app.get('/', (req, res) => {
 	};
 
 	res.render('pages/home', sendObj);
+});
+
+app.get('/email', async (req, res) => {
+
+	const toEmail = "tylervtrinh@gmail.com";
+	const params = {
+		email: toEmail,
+		name: "Tyler Trinh"
+	};
+
+	const result = await sendEmail({template:"email", 
+		params: params, 
+		email: toEmail, 
+		subject: "Testing 123"});
+
+	return res.send(result);
 });
 
 console.log('Running on ' + process.env.NODE_ENV);
