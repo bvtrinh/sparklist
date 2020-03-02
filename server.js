@@ -2,11 +2,17 @@ const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const bodyParser = require('body-parser');
+const session = require('express-session');
+const passport = require('passport');
+const passportSetup = require('./config/passport-setup');
 require('dotenv').config();
 
 // Routes
 const items = require('./routes/item');
 const users = require('./routes/user');
+const auth  = require('./routes/auth');
+const profile  = require('./routes/profile');
+
 
 const app = express();
 
@@ -16,6 +22,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+
+// Express session
+app.use(session({
+	// expire after 1 day
+	maxAge: 24 * 60 * 60 * 1000,
+	secret: 'sparklistsecret'
+}));
+
+// Passport
+app.use(passport.initialize());
+app.use(passport.session())
 
 // DB Config
 const db = process.env.MONGOURI;
@@ -34,13 +51,12 @@ mongoose
 // Use routes
 app.use('/item', items);
 app.use('/user', users);
+app.use('/auth', auth); 
+app.use('/profile', profile); 
+
 
 app.get('/', (req, res) => {
-	const sendObj = {
-		msg: 'Hello World!',
-	};
-
-	res.render('pages/home', sendObj);
+	res.render('pages/home', {user: req.user});
 });
 
 app.get('/login', (req, res) => {

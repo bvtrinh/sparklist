@@ -11,9 +11,16 @@
 
 <body>
   <div class="container">
-    <h1><%= msg %></h1>
-    <a href="login"><button type="button" class="btn btn-primary" name="login">Login</button></a>
-    <a href="register"><button type="button" class="btn btn-primary" name="register">Register</button></a>
+    <h1>
+      <% if(user) { %> 
+       <p>Welcome to SparkList <%= user.fname + ' ' + user.lname %> </p>
+       <a href="profile"><button type="button" class="btn btn-primary" name="profile">My Profile</button></a>
+      <% } else { %>
+        <p>Please sign in or register to continue</p>
+        <a href="login"><button type="button" class="btn btn-primary" name="login">Login</button></a>
+        <a href="register"><button type="button" class="btn btn-primary" name="register">Register</button></a>
+      <% } %>
+    </h1>
   </div>
 
   <%- include ('../partials/endBody.ejs') %>
