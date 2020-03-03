@@ -12,7 +12,7 @@ module.exports = async ({template, params, email, subject}) => {
    // a data object that contains all the variables we need for this email
    const data = {
       // from could be a string that is stored as a constant and imported into every trigger
-      from: `Wist<noreply@${DOMAIN}>`,
+      from: `Sparklist <noreply@${DOMAIN}>`,
       // If you're in debug mode you'll want to send the email to yourself
       to: `${email}`,
       subject: `${subject}`,
