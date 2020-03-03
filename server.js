@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const passport = require('passport');
 const passportSetup = require('./config/passport-setup');
+const flash = require('connect-flash');
 require('dotenv').config();
 
 // Routes
@@ -27,12 +28,17 @@ app.set('view engine', 'ejs');
 app.use(session({
 	// expire after 1 day
 	maxAge: 24 * 60 * 60 * 1000,
+	resave: true,
+  	saveUninitialized: true,
 	secret: 'sparklistsecret'
 }));
 
 // Passport
 app.use(passport.initialize());
-app.use(passport.session())
+app.use(passport.session());
+
+// Connect flash
+app.use(flash());
 
 // DB Config
 const db = process.env.MONGOURI;
@@ -46,6 +52,14 @@ mongoose
 	})
 	.then(() => console.log('MongoDB Connected...'))
 	.catch((err) => console.log(err));
+
+// Global Vars
+app.use((req, res, next) => {
+	res.locals.success_msg = req.flash('success_msg');
+	res.locals.error_msg = req.flash('error_msg');
+	res.locals.error = req.flash('error');
+	next();
+});
 
 
 // Use routes

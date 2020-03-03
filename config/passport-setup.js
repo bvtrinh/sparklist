@@ -1,5 +1,8 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const LocalStrategy = require('passport-local').Strategy;
+const bcrypt = require('bcryptjs');
+
 const Users = require('../models/User')
 require('dotenv').config();
 
@@ -40,3 +43,27 @@ passport.use(
         });
     })
 ); 
+
+
+passport.use(
+  new LocalStrategy({usernameField: 'email'}, (email, password, done) => {
+      // Check if user exists
+      User.findOne({email: email})
+        .then(user => {
+            if(!user){
+                return done(null, false, {msg: 'User not found.'});
+            }
+            // Check password
+            bcrypt.compare(password, user.password, function(err, result) {
+                if(err) throw err;
+
+                if(result){
+                    return done(null, user);
+                } else {
+                    return done(null, false, {msg: 'Incorrect password.'})
+                }
+            });
+        })
+        .catch(err => console.log(err));
+  })  
+);

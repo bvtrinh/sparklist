@@ -3,9 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-  <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
   <link rel="stylesheet" type="text/css" href="/css/login.css">
   <%- include ('../partials/header.ejs') %>
   <title>Login</title>
@@ -23,7 +20,8 @@
     <div class="col-md-6 col-sm-12">
        <div class="login-form">
          <h2>Login</h2>
-          <form action="/user/auth" method="POST">
+          <form action="/auth/login" method="POST">
+            <%- include ('../partials/messages.ejs') %>
             <% if (failed) { %>
               <div class="alert alert-danger" role="alert" id="register-error-msg">
                 Email/Password incorrect. Please try again.
@@ -37,7 +35,6 @@
              </div>
              <button type="submit" class="btn btn-black" style="color: #fff;">Login</button>
              <a href="/auth/google"><button type="button" class="btn btn-black" style="color: #fff;">Google</button></a>
-             <!-- <a class='google-btn' href="/auth/google">Google+</a> -->
              <a href="register"><button type="button" class="btn btn-secondary">Register</button></a>
           
           </form>
