@@ -51,7 +51,7 @@ passport.use(
       User.findOne({email: email})
         .then(user => {
             if(!user){
-                return done(null, false, {msg: 'User not found.'});
+                return done(null, false, {message: 'User not found.'});
             }
             // Check password
             bcrypt.compare(password, user.password, function(err, result) {
@@ -60,7 +60,7 @@ passport.use(
                 if(result){
                     return done(null, user);
                 } else {
-                    return done(null, false, {msg: 'Incorrect password.'})
+                    return done(null, false, {message: 'Incorrect password.'})
                 }
             });
         })
