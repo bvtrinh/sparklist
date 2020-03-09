@@ -1,5 +1,5 @@
 {
-  "name": "wish",
+  "name": "sparklist",
   "version": "1.0.0",
   "description": "A web app to share wish lists with friends and family",
   "main": "server.js",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@csil-git1.cs.surrey.sfu.ca:bvtrinh/470group6.git"
+    "url": "git@csil-git1.cs.surrey.sfu.ca:bvtrinh/sparklist.git"
   },
   "author": "",
   "license": "ISC",

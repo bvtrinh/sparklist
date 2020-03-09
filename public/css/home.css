@@ -1,0 +1,26 @@
+.home-main {
+  background-image: url("/img/stars.jpg");
+  min-height: 50%;
+  background-repeat: no-repeat;
+  background-position: center;
+  -webkit-background-size: cover;
+  background-size: cover;
+  color: white;
+}
+
+.card {
+  width: 15rem;
+}
+
+.card-img-top {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 13rem; /* You can set the dimensions to whatever you want */
+  height: 15rem;
+  object-fit: scale-down;
+}
+
+.font-sen {
+  font-family: "Sen", sans-serif;
+}

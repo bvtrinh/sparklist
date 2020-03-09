@@ -6,12 +6,75 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <%- include ('../partials/header.ejs') %>
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="/css/home.css">
   <title>Home</title>
 </head>
 
 <body>
-  <div class="container">
-    <h1><%= msg %></h1>
+  <%- include ('../partials/navbar.ejs') %>
+  <div class="jumbotron jumbotron-fluid home-main">
+    <div class="container">
+      <h1 class="display-4 font-sen">SparkList</h1>
+      <p class="lead">Share wishlists with friends and family, so you can always get the right gift!</p>
+      <hr class="my-4">
+      <p>Find out what the hottest gifts are below</p>
+    </div>
+  </div>
+  <div class="container mb-5">
+
+    <h2>Featured Gifts</h2>
+    <hr class="my-4">
+
+    <div class="card-deck row row-cols-lg-4 row-cols-md-2">
+      <div class="col mb-2">
+        <div class="card h-100">
+          <img src="https://images-na.ssl-images-amazon.com/images/I/71zU29X1JiL._AC_UY741_.jpg" class="card-img-top"
+            alt="...">
+          <div class="card-body">
+            <h5 class="card-title"><a href="#">Champion Mens Heavyweight Jersey with Hood Hoodies</a></h5>
+            <p class="card-text">$39.83</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col mb-2">
+        <div class="card h-100">
+          <img
+            src="https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/MWP22?wid=572&hei=572&fmt=jpeg&qlt=95&op_usm=0.5,0.5&.v=1572990352299"
+            class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title"><a href="#">AirPods Pro</a></h5>
+            <p class="card-text">$329.00</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col mb-2">
+        <div class="card h-100">
+          <img src="https://images-na.ssl-images-amazon.com/images/I/61VO-9GI8nL._AC_SL1010_.jpg" class="card-img-top"
+            alt="...">
+          <div class="card-body">
+            <h5 class="card-title"><a href="#">Nike Tech Swoosh Cap, One Size</a></h5>
+            <p class="card-text">$43.09</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col mb-2">
+        <div class="card h-100">
+          <img src="https://images-na.ssl-images-amazon.com/images/I/81Ja08WuPUL._AC_SL1500_.jpg" class="card-img-top"
+            alt="...">
+          <div class="card-body">
+            <h5 class="card-title"><a href="#">Mr. Coffee Mug Warmer</a></h5>
+            <p class="card-text">$24.60</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="my-4">
+    <h2>About</h2>
+    <hr class="my-4">
   </div>
 
   <%- include ('../partials/endBody.ejs') %>
