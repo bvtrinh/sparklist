@@ -74,11 +74,11 @@ app.get('/', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-	res.render('pages/login', {failed: false});
+	res.render('pages/login');
 });
 
 app.get('/register', (req, res) => {
-	res.render('pages/register', {failed: false});
+	res.render('pages/register');
 });
 
 console.log('Running on ' + process.env.NODE_ENV);

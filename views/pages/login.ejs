@@ -22,11 +22,6 @@
          <h2>Login</h2>
           <form action="/auth/login" method="POST">
             <%- include ('../partials/messages.ejs') %>
-            <% if (failed) { %>
-              <div class="alert alert-danger" role="alert" id="register-error-msg">
-                Email/Password incorrect. Please try again.
-              </div>
-             <% } %>
              <div class="form-group">
                 <input type="text" class="form-control" name="email" placeholder="Email">
              </div>
