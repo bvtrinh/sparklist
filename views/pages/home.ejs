@@ -15,6 +15,8 @@
       <% if(user) { %> 
        <p>Welcome to SparkList <%= user.fname + ' ' + user.lname %> </p>
        <a href="profile"><button type="button" class="btn btn-primary" name="profile">My Profile</button></a>
+       <a href="group"><button type="button" class="btn btn-primary" name="group">My Groups</button></a>
+
       <% } else { %>
         <p>Please sign in or register to continue</p>
         <a href="login"><button type="button" class="btn btn-primary" name="login">Login</button></a>
