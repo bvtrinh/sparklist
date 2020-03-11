@@ -17,13 +17,21 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/vision": "^1.10.0",
     "bcryptjs": "^2.4.3",
     "dotenv": "^8.2.0",
     "ejs": "^3.0.1",
     "ejs-promise": "^0.3.3",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
+    "fs": "0.0.1-security",
+    "jade": "^1.11.0",
     "mailgun-js": "^0.22.0",
-    "mongoose": "^5.9.0"
+    "mongodb": "^3.5.4",
+    "mongoose": "^5.9.4",
+    "path": "^0.12.7",
+    "querystring": "^0.2.0",
+    "socket.io": "^2.3.0",
+    "url": "^0.11.0"
   }
 }
