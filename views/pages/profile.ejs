@@ -11,11 +11,11 @@
 </head>
 
 <body>
+  <%- include ('../partials/navbar.ejs') %>
   <div class="container">
-      <h1>Profile</h1>
-      <p>Name: <%= user.fname %> <%= user.lname %></p>
-      <p>Email: <%= user.email %></p>
-      <a href="/auth/logout"><button type="button" class="btn btn-black" style="color: #fff;">Logout</button></a>
+    <h1>Profile</h1>
+    <p>Name: <%= user.fname %> <%= user.lname %></p>
+    <p>Email: <%= user.email %></p>
   </div>
 
   <%- include ('../partials/endBody.ejs') %>

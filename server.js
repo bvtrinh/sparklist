@@ -73,14 +73,6 @@ app.get("/", (req, res) => {
   res.render("pages/home", { user: req.user });
 });
 
-app.get("/login", (req, res) => {
-  res.render("pages/login");
-});
-
-app.get("/register", (req, res) => {
-  res.render("pages/register");
-});
-
 app.get("/email", async (req, res) => {
   const toEmail = "tylervtrinh@gmail.com";
   const params = {
