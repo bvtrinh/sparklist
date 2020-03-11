@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%- include ('../partials/header.ejs') %>
+  <link rel="stylesheet" type="text/css" href="/css/login.css">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Profile</title>
+</head>
+
+<body>
+  <div class="container">
+      <h1>Profile</h1>
+      <p>Name: <%= user.fname %> <%= user.lname %></p>
+      <p>Email: <%= user.email %></p>
+      <a href="/auth/logout"><button type="button" class="btn btn-black" style="color: #fff;">Logout</button></a>
+  </div>
+
+  <%- include ('../partials/endBody.ejs') %>
+</body>
+
+
+</html>

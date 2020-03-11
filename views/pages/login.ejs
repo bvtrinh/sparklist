@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="/css/login.css">
+  <%- include ('../partials/header.ejs') %>
+  <title>Login</title>
+</head>
+
+<body>
+
+  <div class="sidenav">
+    <div class="login-main-text">
+       <h2 class="logo">SparkList</h2>
+       <p>Login or register from here to access.</p>
+    </div>
+ </div>
+ <div class="main">
+    <div class="col-md-6 col-sm-12">
+       <div class="login-form">
+         <h2>Login</h2>
+          <form action="/auth/login" method="POST">
+            <%- include ('../partials/messages.ejs') %>
+             <div class="form-group">
+                <input type="text" class="form-control" name="email" placeholder="Email">
+             </div>
+             <div class="form-group">
+                <input type="password" class="form-control" name="password" placeholder="Password">
+             </div>
+             <button type="submit" class="btn btn-black" style="color: #fff;">Login</button>
+             <a href="/auth/google"><button type="button" class="btn btn-black" style="color: #fff;">Google</button></a>
+             <a href="register"><button type="button" class="btn btn-secondary">Register</button></a>
+          
+          </form>
+       </div>
+    </div>
+</div>
+
+</body>
+
+</html>
