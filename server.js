@@ -15,6 +15,8 @@ const items = require("./routes/item");
 const users = require("./routes/user");
 const auth = require("./routes/auth");
 const profile = require("./routes/profile");
+const group = require("./routes/group");
+const wishlist = require("./routes/wishlist");
 
 const app = express();
 
@@ -69,6 +71,8 @@ app.use("/item", items);
 app.use("/user", users);
 app.use("/auth", auth);
 app.use("/profile", profile);
+app.use("/group", group);
+app.use("/wishlist", wishlist);
 
 app.get("/", async (req, res) => {
   var items = await fs.readFile("items.json");
