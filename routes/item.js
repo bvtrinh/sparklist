@@ -1,27 +1,20 @@
 const router = require("express").Router();
-
+const fs = require("fs").promises;
 // Item Model
 const Item = require("../models/Item");
 
-router.get("/", (req, res) => {
-  Item.find()
-    .sort({ date: -1 })
-    .then(items => res.json(items));
+router.get("/search", async (req, res) => {
+  var items = await fs.readFile("items.json");
+  items = JSON.parse(items);
+  res.render("pages/search", { user: req.user, items });
 });
 
-// @route POST api/items
-// @desc Create an item
-// @access Private
-router.post("/", (req, res) => {
-  const new_item = new Item({
-    name: req.body.name
-  });
+router.get("/:id", async (req, res) => {
+  const id = req.params.id;
+  var items = await fs.readFile("items.json");
+  const item = JSON.parse(items)[id];
 
-  new_item.save().then(item => res.json(item));
-});
-
-router.get("/search", (req, res) => {
-  res.render("pages/search");
+  res.render("pages/item", { user: req.user, item });
 });
 
 module.exports = router;

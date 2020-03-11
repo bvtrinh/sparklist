@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,37 +16,42 @@
 
   <div class="sidenav">
     <div class="login-main-text">
-       <h2 class="logo">SparkList</h2>
+      <h2 class="logo font-sen">SparkList</h2>
     </div>
- </div>
- <div class="main">
+  </div>
+  <div class="main">
     <div class="col-md-6 col-sm-12">
-       <div class="register-form">
+      <div class="register-form">
         <h2>Register</h2>
         <form action="/user/register" method="POST">
           <%- include ('../partials/messages.ejs') %>
-          
+
           <div class="form-group">
-              <input type="text" class="form-control" id="fname" name="fname" value="<%= typeof fname != 'undefined' ? fname: '' %>" placeholder="First Name">
-          </div> 
-          <div class="form-group">
-              <input type="text" class="form-control" id="lname" name="lname" value="<%= typeof lname != 'undefined' ? lname: '' %>" placeholder="Last Name">
+            <input type="text" class="form-control" id="fname" name="fname"
+              value="<%= typeof fname != 'undefined' ? fname: '' %>" placeholder="First Name">
           </div>
           <div class="form-group">
-              <input type="email" class="form-control" id="email" name="email" value="<%= typeof email != 'undefined' ? email: '' %>" placeholder="Enter email">
+            <input type="text" class="form-control" id="lname" name="lname"
+              value="<%= typeof lname != 'undefined' ? lname: '' %>" placeholder="Last Name">
           </div>
           <div class="form-group">
-              <input type="password" class="form-control" id="password" name="password" value="<%= typeof password != 'undefined' ? password: '' %>" placeholder="Password">
+            <input type="email" class="form-control" id="email" name="email"
+              value="<%= typeof email != 'undefined' ? email: '' %>" placeholder="Enter email">
           </div>
           <div class="form-group">
-            <input type="password" class="form-control" id="passwordConfirm" name="passwordConfirm" placeholder="Confirm Password">
+            <input type="password" class="form-control" id="password" name="password"
+              value="<%= typeof password != 'undefined' ? password: '' %>" placeholder="Password">
           </div>
-  
+          <div class="form-group">
+            <input type="password" class="form-control" id="passwordConfirm" name="passwordConfirm"
+              placeholder="Confirm Password">
+          </div>
+
           <button type="signup" class="btn btn-black" style="color: #fff;">Register</button>
         </form>
-       </div>
+      </div>
     </div>
-</div>
+  </div>
 
 </body>
 

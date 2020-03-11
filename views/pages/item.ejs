@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%- include ('../partials/header.ejs') %>
+  <link rel="stylesheet" type="text/css" href="/css/login.css">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="/css/item.css">
+  <title><%= item.title %></title>
+</head>
+
+<body>
+  <%- include ('../partials/navbar.ejs') %>
+  <div class="container my-5">
+
+    <div align="center" class="card-deck row row-cols-lg-2 row-cols-md-1 my-5">
+
+      <div class="col-lg-5">
+        <div class="card item-card h-100 pt-3 shadow">
+          <h3 class="card-title"><%= item.title %></h3>
+          <img src="<%= item.img_url %>" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h2>$<%= item.price_history[item.price_history.length - 1][0] %></h2>
+            <a href="<%= item.url %>">Buy Link</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-7">
+        <div class="card price-card h-100 pt-3 shadow">
+          <h3 class="card-title">Price History</h3>
+          <h2>WIP</h2>
+          <img src="/img/price-chart.png" class="card-img-top" alt="...">
+        </div>
+      </div>
+
+    </div>
+
+    <h2>Similar Products</h2>
+    <div align="center" class="card-deck row row-cols-lg-4 row-cols-md-2">
+
+      <div class="col mb-5">
+        <div class="card h-100 pt-3 shadow">
+          <img src="/img/item-placeholder.jpeg" class="card-sim-img" alt="...">
+          <div class="card-body">
+            <h5 class="card-title"><a href="#">Product 1</a></h5>
+            <p class="card-text">$9.99</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col mb-5">
+        <div class="card h-100 pt-3 shadow">
+          <img src="/img/item-placeholder.jpeg" class="card-sim-img" alt="...">
+          <div class="card-body">
+            <h5 class="card-title"><a href="#">Product 2</a></h5>
+            <p class="card-text">$9.99</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col mb-5">
+        <div class="card h-100 pt-3 shadow">
+          <img src="/img/item-placeholder.jpeg" class="card-sim-img" alt="...">
+          <div class="card-body">
+            <h5 class="card-title"><a href="#">Product 3</a></h5>
+            <p class="card-text">$9.99</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col mb-5">
+        <div class="card h-100 pt-3 shadow">
+          <img src="/img/item-placeholder.jpeg" class="card-sim-img" alt="...">
+          <div class="card-body">
+            <h5 class="card-title"><a href="#">Product 4</a></h5>
+            <p class="card-text">$9.99</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <%- include ('../partials/endBody.ejs') %>
+</body>
+
+
+</html>

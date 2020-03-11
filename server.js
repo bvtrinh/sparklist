@@ -7,6 +7,7 @@ const passport = require("passport");
 const passportSetup = require("./config/passport-setup");
 const flash = require("connect-flash");
 const sendEmail = require("./scripts/email/index");
+const fs = require("fs").promises;
 require("dotenv").config();
 
 // Routes
@@ -69,8 +70,11 @@ app.use("/user", users);
 app.use("/auth", auth);
 app.use("/profile", profile);
 
-app.get("/", (req, res) => {
-  res.render("pages/home", { user: req.user });
+app.get("/", async (req, res) => {
+  var items = await fs.readFile("items.json");
+  items = JSON.parse(items);
+  items = items.slice(0, 4);
+  res.render("pages/home", { user: req.user, items });
 });
 
 app.get("/email", async (req, res) => {

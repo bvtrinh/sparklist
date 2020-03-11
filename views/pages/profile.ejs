@@ -13,9 +13,16 @@
 <body>
   <%- include ('../partials/navbar.ejs') %>
   <div class="container">
-    <h1>Profile</h1>
-    <p>Name: <%= user.fname %> <%= user.lname %></p>
-    <p>Email: <%= user.email %></p>
+
+    <h1 class="card-title mt-5 mb-3">Profile</h1>
+    <a class="btn btn-primary mb-3" href="#">Edit</a>
+    <div class="card h-100 pt-3 shadow">
+      <div class="card-body">
+        <p>Name: <%= user.fname %> <%= user.lname %></p>
+        <p>Email: <%= user.email %></p>
+        <p>Creation Date: <%= user.date %></p>
+      </div>
+    </div>
   </div>
 
   <%- include ('../partials/endBody.ejs') %>

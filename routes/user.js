@@ -5,14 +5,23 @@ require("dotenv").config();
 
 const saltRounds = 10;
 
+const authCheck = (req, res, next) => {
+  if (req.user) {
+    // user not logged in
+    res.redirect("/");
+  } else {
+    // user logged in
+    next();
+  }
+};
 // User Model
 const User = require("../models/User");
 
-router.get("/login", (req, res) => {
+router.get("/login", authCheck, (req, res) => {
   res.render("pages/login");
 });
 
-router.get("/register", (req, res) => {
+router.get("/register", authCheck, (req, res) => {
   res.render("pages/register");
 });
 
