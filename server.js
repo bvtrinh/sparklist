@@ -32,7 +32,7 @@ app.use(
     maxAge: 24 * 60 * 60 * 1000,
     resave: true,
     saveUninitialized: true,
-    secret: "sparklistsecret"
+    secret: process.env.SESSION_SECRET
   })
 );
 
