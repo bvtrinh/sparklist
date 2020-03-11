@@ -1,42 +1,47 @@
 <!-- START NAVBAR -->
-<nav class="navbar navbar-expand-sm navbar-dark shadow-lg" style="background-color: #150135;">
 
-    <a class="navbar-brand font-sen" id="navbar-logo" href="/">
-        <img src="/img/logo/logo32.png" class="img-fluid" width="25" height="25">
-        SparkList</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02"
-        aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+<div class="nav-bg">
+    <div class="container">
+        <nav class="navbar navbar-expand-sm navbar-dark shadow-lg">
 
-    <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-            <li class="navbar-right">
-                <a class="nav-link" href="/"><i class="fas fa-home"></i> Home</a>
-            </li>
-            <li class="navbar-right">
-                <a class="nav-link" href="/item/search"><i class="fas fa-search"></i> Search</a>
-            </li>
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-            <% if (typeof user !== 'undefined') { %>
-            <li class="navbar-right">
-                <a class="nav-link" href="/profile"><i class="fas fa-user"></i>
-                    <%=user.fname%></a>
-            </li>
-            <li class="navbar-right">
-                <a class="nav-link" href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-            </li>
-            <% } else { %>
-            <li class="navbar-right">
-                <a class="nav-link" href="/user/register"><i class="fas fa-user-plus"></i> Sign Up</a>
-            </li>
-            <li class="navbar-right">
-                <a class="nav-link" href="/user/login"><i class="fas fa-sign-in-alt"></i> Login</a>
-            </li>
-            <% } %>
-        </ul>
+            <a class="navbar-brand font-sen" id="navbar-logo" href="/">
+                <img src="/img/logo/logo32.png" class="img-fluid" width="25" height="25">
+                SparkList</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02"
+                aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                    <li class="navbar-right">
+                        <a class="nav-link" href="/"><i class="fas fa-home"></i> Home</a>
+                    </li>
+                    <li class="navbar-right">
+                        <a class="nav-link" href="/item/search"><i class="fas fa-search"></i> Search</a>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <% if (typeof user !== 'undefined') { %>
+                    <li class="navbar-right">
+                        <a class="nav-link" href="/profile"><i class="fas fa-user"></i>
+                            <%=user.fname%></a>
+                    </li>
+                    <li class="navbar-right">
+                        <a class="nav-link" href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                    <% } else { %>
+                    <li class="navbar-right">
+                        <a class="nav-link" href="/user/register"><i class="fas fa-user-plus"></i> Sign Up</a>
+                    </li>
+                    <li class="navbar-right">
+                        <a class="nav-link" href="/user/login"><i class="fas fa-sign-in-alt"></i> Login</a>
+                    </li>
+                    <% } %>
+                </ul>
+            </div>
+
+        </nav>
     </div>
-
-</nav>
+</div>
 <!-- END NAVBAR -->

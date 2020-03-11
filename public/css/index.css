@@ -1,7 +1,15 @@
 .font-sen {
-    font-family: 'Sen', sans-serif;
+  font-family: "Sen", sans-serif;
 }
 
 #navbar-logo {
-    font-size: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.nav-bg {
+  background-color: #150135;
+}
+
+.nav {
+  background-color: #150135;
 }
