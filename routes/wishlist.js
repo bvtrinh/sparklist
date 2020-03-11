@@ -78,32 +78,17 @@ router.post("/update/", authCheck, (req, res) => {
 
   var usersList = sharedUsers.trim().split(",");
 
-  // console.log(usersList);
-  // usersList.forEach(function (item, index) {
-  //     console.log(item, index);
-  //   });
-
   Wishlist.findById(wishlistID).then(wishlist => {
     if (wishlist) {
       if (wishlistName != wishlist.name) {
         wishlist.name = wishlistName;
       }
 
-      // var members = wishlist.sharedUsers;
-      // members.forEach(function(member, index) {
-      //     console.log(member);
-      // });
       wishlist.sharedUsers = [];
 
-      // if(sharedUsers != wishlist.sharedUsers) {
       usersList.forEach(function(user, index) {
-        // if(!members.includes(user)){
         wishlist.sharedUsers.push(user.trim());
-        // }
       });
-
-      // wishlist.sharedUsers = sharedUsers;
-      // }
 
       if (visibility != undefined && visibility != wishlist.visibility) {
         wishlist.visibility = visibility;
