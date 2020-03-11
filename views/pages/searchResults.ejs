@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%- include ('../partials/header.ejs') %>
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Home</title>
+</head>
+
+<body>
+
+<% if (items) { %>
+  <table id = "searchForm">
+    <tr>
+        <th>Product Name</th>
+        <th>Category</th>
+        <th>Price</th>
+    </tr>
+
+    <% items.forEach(item => { %> 
+
+        <tr>
+            <td><%= item.title %></td>
+            <td><%= item.category%></td>
+
+            <% if(item.price_hist[0]) {%>
+        
+                <td><%= item.price_hist[0].price %></td>
+            <% } %>
+
+        </tr>
+
+
+
+        <% }); %>
+
+
+  </table>
+ 
+  <% } %>
+ 
+
+  <%- include ('../partials/endBody.ejs') %>
+</body>
+
+
+</html>

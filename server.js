@@ -2,11 +2,17 @@ const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
 const sendEmail = require("./scripts/email/index");
-require("dotenv").config({ path: path.join(__dirname, ".env") });
-
+// require("dotenv").config({ path: path.join(__dirname, ".env") });
+require('dotenv').config();
 // Routes
 const items = require("./routes/item");
 const users = require("./routes/user");
+
+const addItem = require('./routes/addItem');
+const searchDB = require('./routes/searchDB');
+
+// Item Model
+const Item = require('./models/Item');
 
 const app = express();
 
@@ -33,6 +39,9 @@ mongoose
 // Use routes
 app.use("/item", items);
 app.use("/user", users);
+
+app.use('/addItem', addItem);
+app.use('/searchDB', searchDB);
 
 app.get("/", (req, res) => {
   const sendObj = {
