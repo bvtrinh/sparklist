@@ -1,6 +1,5 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const path = require("path");
 const bodyParser = require("body-parser");
 const session = require("express-session");
 const passport = require("passport");
@@ -8,8 +7,8 @@ const passportSetup = require("./config/passport-setup");
 const flash = require("connect-flash");
 const sendEmail = require("./scripts/email/index");
 const fs = require("fs").promises;
-require("dotenv").config();
-
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 // Routes
 const items = require("./routes/item");
 const users = require("./routes/user");

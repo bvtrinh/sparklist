@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
-require("dotenv").config();
 
 const saltRounds = 10;
 
