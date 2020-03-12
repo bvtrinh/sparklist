@@ -6,13 +6,20 @@
   display: block;
   margin-left: auto;
   margin-right: auto;
-  width: 25rem; /* You can set the dimensions to whatever you want */
+  width: 20rem; /* You can set the dimensions to whatever you want */
   height: 35rem;
   object-fit: scale-down;
 }
-
+.card-img-price {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 20rem; /* You can set the dimensions to whatever you want */
+  height: 35rem;
+  object-fit: scale-down;
+}
 .price-card {
-  width: 35rem;
+  width: 30rem;
 }
 
 .card-sim-img {

@@ -19,6 +19,16 @@ router.get("/add", authCheck, async (req, res) => {
   res.render("pages/item/addItem", { user: req.user, lists });
 });
 
+router.post("/addlist", authCheck, async (req, res) => {
+  const item_id = req.body.id;
+  const list_id = { _id: req.body.list };
+  // Add item to wishlist
+  await Wishlist.updateOne(list_id, { $push: { items: item_id } });
+
+  // Should redirect to wishlist, this goes to the manage side
+  res.redirect(`/wishlist/manage/?wishlistID=${req.body.list}`);
+});
+
 router.post("/process", (req, res) => {
   const url = req.body.item_url;
   const list_id = { _id: req.body.list };
@@ -51,9 +61,13 @@ router.get("/search", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
-  Item.findById(req.params.id).then(item => {
+  const item = await Item.findById(req.params.id);
+  if (req.user) {
+    const lists = await Wishlist.find({ owner: req.user.email });
+    return res.render("pages/item/viewItem", { user: req.user, item, lists });
+  } else {
     return res.render("pages/item/viewItem", { user: req.user, item });
-  });
+  }
 });
 
 module.exports = router;
