@@ -5,7 +5,7 @@ $(document).ready(() => {
     $.ajax({
       url: "/item/process",
       dataType: "JSON",
-      data: url,
+      data: { url },
       success: data => {
         console.log(data);
       }

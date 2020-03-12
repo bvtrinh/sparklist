@@ -6,10 +6,10 @@ const saltRounds = 10;
 
 const authCheck = (req, res, next) => {
   if (req.user) {
-    // user not logged in
+    // user logged in
     res.redirect("/");
   } else {
-    // user logged in
+    // user not logged in
     next();
   }
 };
