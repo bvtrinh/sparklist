@@ -4,42 +4,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <%- include ('../partials/header.ejs') %>
+    <%- include ('../../partials/header.ejs') %>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Wishlists</title>
+    <title>Groups</title>
 </head>
 
 <body>
-    <%- include ('../partials/navbar.ejs') %>
+    <%- include ('../../partials/navbar.ejs') %>
     <div class="container">
-        <h1 class="mt-5 mb-3">Wishlists</h1>
+        <h1 class="mt-5 mb-3">Groups</h1>
 
         <% if(msg != '') { %>
         <p><%= msg %></p>
         <% } %>
 
-        <a href="/wishlist/create"><button type="button" class="btn btn-primary" name="wishlist">Create
-                Wishlist</button></a>
+        <a href="/group/create"><button type="button" class="btn btn-primary" name="group">Create Group</button></a>
 
-        <% if (wishlists) { %>
+        <% if (groups) { %>
         <table class="table">
             <thead>
                 <tr>
                     <th scope="col">ID</th>
                     <th scope="col">Name</th>
+                    <th scope="col">Admin</th>
                     <th scope="col">Members</th>
                     <th scope="col">Visibility</th>
                     <th scope="col">Edit</th>
                 </tr>
             </thead>
             <tbody>
-                <% wishlists.forEach(wishlist => { %>
+                <% groups.forEach(group => { %>
                 <tr>
-                    <td><%= wishlist._id %></td>
-                    <td><%= wishlist.name %></td>
-                    <td><%= wishlist.sharedUsers %></td>
-                    <td><%= wishlist.visibility %></td>
-                    <td><a href="/wishlist/manage/?wishlistID=<%= wishlist._id %>"><i class="fas fa-edit"></i></a></td>
+                    <td><%= group._id %></td>
+                    <td><%= group.name %></td>
+                    <td><%= group.admin %></td>
+                    <td><%= group.members %></td>
+                    <td><%= group.visibility %></td>
+                    <td><a href="/group/manage/?groupID=<%= group._id %>"><i class="fas fa-edit"></i></a></td>
                 </tr>
                 <% }); %>
             </tbody>
@@ -48,7 +49,7 @@
 
     </div>
 
-    <%- include ('../partials/endBody.ejs') %>
+    <%- include ('../../partials/endBody.ejs') %>
 </body>
 
 

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <%- include ('../partials/header.ejs') %>
+    <%- include ('../../partials/header.ejs') %>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" type="text/css" href="/css/button.css">
     <link rel="stylesheet" type="text/css"
@@ -13,25 +13,26 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tokenfield/0.12.0/css/tokenfield-typeahead.css">
     <link rel="stylesheet" type="text/css"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tokenfield/0.12.0/css/bootstrap-tokenfield.css">
-    <title>Group</title>
+    <title>Manage Group</title>
 </head>
 
 <body>
-    <%- include ('../partials/navbar.ejs') %>
+    <%- include ('../../partials/navbar.ejs') %>
     <div class="container">
         <div class="group-form">
-            <h2 class="mt-5 mb-3">Create New Group</h2>
-            <form action="/group/create" method="POST">
-                <%- include ('../partials/messages.ejs') %>
+            <h1 class="mt-5 mb-3">Manage Group</h1>
+            <form action="/group/update/?groupID=<%= group._id %>" method="POST">
 
                 <div class="form-group">
-                    <input type="text" class="form-control" name="groupName" placeholder="Name">
+                    <label for="groupName">Group Name</label>
+                    <input type="text" class="form-control" name="groupName" value=<%= group.name %>>
                 </div>
 
-
                 <div class="form-group">
-                    <input type="text" class="form-control" id="tokenfield-typeahead" name="invites"
-                        placeholder="Enter emails to send invitations" />
+                    <label for="members">Members</label>
+                    <input type="text" class="form-control" id="tokenfield-typeahead" name="members"
+                        placeholder="Enter emails to send invitations"
+                        value="<% group.members.forEach(member => { %> <%= member %>, <% }); %>" />
                 </div>
 
                 <div class="form-group">
@@ -47,13 +48,18 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-black" style="color: #fff; clear:both">Create</button>
+                <button type="submit" class="btn btn-black" style="color: #fff; clear:both">Update</button>
+
+            </form>
+
+            <form action="/group/delete/?groupID=<%= group._id %>" method="POST">
+                <button type="submit" class="btn btn-danger">Delete</button>
             </form>
         </div>
     </div>
 
-    <%- include ('../partials/endBody.ejs') %>
-    <%- include ('../partials/tokenfield.ejs') %>
+    <%- include ('../../partials/endBody.ejs') %>
+    <%- include ('../../partials/tokenfield.ejs') %>
 
 </body>
 

@@ -17,11 +17,11 @@ const authCheck = (req, res, next) => {
 const User = require("../models/User");
 
 router.get("/login", authCheck, (req, res) => {
-  res.render("pages/login");
+  res.render("pages/user/login");
 });
 
 router.get("/register", authCheck, (req, res) => {
-  res.render("pages/register");
+  res.render("pages/user/register");
 });
 
 // handle registeration
@@ -45,7 +45,7 @@ router.post("/register", (req, res) => {
   }
 
   if (errors.length > 0) {
-    res.render("pages/register", {
+    res.render("pages/user/register", {
       errors,
       fname,
       lname,
@@ -62,7 +62,7 @@ router.post("/register", (req, res) => {
         errors.push({
           msg: "User with entered email already exists. Please try again."
         });
-        res.render("pages/register", {
+        res.render("pages/user/register", {
           errors,
           fname,
           lname,

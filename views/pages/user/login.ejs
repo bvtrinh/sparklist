@@ -5,7 +5,7 @@
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <link rel="stylesheet" type="text/css" href="/css/login.css">
-   <%- include ('../partials/header.ejs') %>
+   <%- include ('../../partials/header.ejs') %>
    <title>Login</title>
 </head>
 
@@ -22,7 +22,7 @@
          <div class="login-form">
             <h2>Login</h2>
             <form action="/auth/login" method="POST">
-               <%- include ('../partials/messages.ejs') %>
+               <%- include ('../../partials/messages.ejs') %>
                <div class="form-group">
                   <input type="text" class="form-control" name="email" placeholder="Email">
                </div>

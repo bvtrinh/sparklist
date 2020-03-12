@@ -16,7 +16,7 @@ const authCheck = (req, res, next) => {
 };
 
 router.get("/create", authCheck, (req, res) => {
-  res.render("pages/createWishlist", { user: req.user });
+  res.render("pages/wishlist/createWishlist", { user: req.user });
 });
 
 // handle wishlist creation
@@ -33,7 +33,7 @@ router.post("/create", authCheck, (req, res) => {
   }
 
   if (errors.length > 0) {
-    res.render("pages/createWishlist", {
+    res.render("pages/wishlist/createWishlist", {
       user: req.user,
       errors,
       wishlistName,
@@ -52,7 +52,7 @@ router.post("/create", authCheck, (req, res) => {
             msg:
               "You already created a wishlist with this name. Please try again with a different name."
           });
-          res.render("pages/createWishlist", {
+          res.render("pages/wishlist/createWishlist", {
             errors,
             visibility
           });
@@ -131,13 +131,13 @@ router.get("/", authCheck, (req, res) => {
     if (wishlists.length == 0) {
       // user does not belong to any wishlists
       // add some type of message
-      res.render("pages/wishlist", {
+      res.render("pages/wishlist/viewWishlist", {
         user: req.user,
         msg: "You do not have any wishlists.",
         wishlists: wishlists
       });
     } else {
-      res.render("pages/wishlist", {
+      res.render("pages/wishlist/viewWishlist", {
         user: req.user,
         msg: "",
         wishlists: wishlists
@@ -150,7 +150,7 @@ router.get("/manage/", authCheck, (req, res) => {
   let wishlistID = req.query.wishlistID;
   Wishlist.findById(wishlistID).then(wishlist => {
     if (wishlist) {
-      res.render("pages/updateWishlist", { wishlist, user: req.user });
+      res.render("pages/wishlist/updateWishlist", { wishlist, user: req.user });
     }
   });
 });

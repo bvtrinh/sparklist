@@ -16,7 +16,7 @@ const authCheck = (req, res, next) => {
 };
 
 router.get("/create", (req, res) => {
-  res.render("pages/createGroup", { user: req.user });
+  res.render("pages/group/createGroup", { user: req.user });
 });
 
 // handle group creation
@@ -33,7 +33,7 @@ router.post("/create", (req, res) => {
   }
 
   if (errors.length > 0) {
-    res.render("pages/group", {
+    res.render("pages/group/viewGroup", {
       errors,
       groupName,
       invites,
@@ -49,7 +49,7 @@ router.post("/create", (req, res) => {
           msg:
             "You already created a group with this name. Please try again with a different name."
         });
-        res.render("pages/createGroup", {
+        res.render("pages/group/createGroup", {
           user: req.user,
           errors,
           invites,
@@ -114,13 +114,13 @@ router.get("/", authCheck, (req, res) => {
     if (groups.length == 0) {
       // user does not belong to any groups
       // add some type of message
-      res.render("pages/group", {
+      res.render("pages/group/viewGroup", {
         user: req.user,
         msg: "You do not have any groups.",
         groups: groups
       });
     } else {
-      res.render("pages/group", {
+      res.render("pages/group/viewGroup", {
         user: req.user,
         msg: "",
         groups: groups
@@ -133,7 +133,7 @@ router.get("/manage/", (req, res) => {
   let groupID = req.query.groupID;
   Group.findById(groupID).then(group => {
     if (group) {
-      res.render("pages/updateGroup", { group, user: req.user });
+      res.render("pages/group/updateGroup", { group, user: req.user });
     }
   });
 });
