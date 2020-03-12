@@ -19,7 +19,7 @@ router.get("/add", authCheck, async (req, res) => {
   res.render("pages/item/addItem", { user: req.user, lists });
 });
 
-router.post("/process", async (req, res) => {
+router.post("/process", (req, res) => {
   const url = req.body.item_url;
   const list_id = { _id: req.body.list };
 
@@ -27,7 +27,7 @@ router.post("/process", async (req, res) => {
 
   // Pull title, price, image (tentative), labels
   // Need to pull image before getting labels
-  priceFind.findItemDetails(url, (err, itemDetails) => {
+  priceFind.findItemDetails(url, async (err, itemDetails) => {
     const newItem = new Item({
       title: itemDetails.name,
       price_hist: { price: itemDetails.price, date: Date().toString() },
@@ -36,10 +36,11 @@ router.post("/process", async (req, res) => {
     });
 
     // Add item to wishlist
-    Wishlist.updateOne(list_id, { $push: { items: newItem._id } }).then(() => {
-      // Add item to DB
-      newItem.save().then(item => res.redirect(`/item/${newItem._id}`));
-    });
+    await Wishlist.updateOne(list_id, { $push: { items: newItem._id } });
+
+    // Add item to DB
+    await newItem.save();
+    res.redirect(`/item/${newItem._id}`);
   });
 });
 
