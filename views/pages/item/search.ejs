@@ -64,7 +64,7 @@
                     <img src="<%= item.img_url %>" class="card-img-top" alt="...">
                     <div class="card-body">
                         <h5 class="card-title"><a href="/item/<%= item.id %>"><%= item.title %></a></h5>
-                        <p class="card-text">$<%= item.price_history[item.price_history.length - 1][0] %></p>
+                        <p class="card-text">$<%= item.price_hist[item.price_hist.length - 1].price %></p>
                     </div>
                 </div>
             </div>

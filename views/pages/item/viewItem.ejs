@@ -22,7 +22,7 @@
           <h3 class="card-title"><%= item.title %></h3>
           <img src="<%= item.img_url %>" class="card-img-top" alt="...">
           <div class="card-body">
-            <h2>$<%= item.price_history[item.price_history.length - 1][0] %></h2>
+            <h2>$<%= item.price_hist[item.price_hist.length - 1].price %></h2>
             <a href="<%= item.url %>">Buy Link</a>
           </div>
         </div>

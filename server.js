@@ -6,9 +6,12 @@ const passport = require("passport");
 const passportSetup = require("./config/passport-setup");
 const flash = require("connect-flash");
 const sendEmail = require("./scripts/email/index");
-const fs = require("fs").promises;
 const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
+
+// Models for featured items
+const Item = require("./models/Item");
+
 // Routes
 const items = require("./routes/item");
 const users = require("./routes/user");
@@ -73,11 +76,16 @@ app.use("/profile", profile);
 app.use("/group", group);
 app.use("/wishlist", wishlist);
 
-app.get("/", async (req, res) => {
-  var items = await fs.readFile("items.json");
-  items = JSON.parse(items);
-  items = items.slice(0, 4);
-  res.render("pages/home", { user: req.user, items });
+app.get("/", (req, res) => {
+  Item.find()
+    .sort({ title: 1 })
+    .limit(4)
+    .then(items => {
+      return res.render("pages/home", { user: req.user, items });
+    })
+    .catch(err => {
+      console.log(err);
+    });
 });
 
 app.get("/email", async (req, res) => {
