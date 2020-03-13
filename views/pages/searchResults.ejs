@@ -69,7 +69,56 @@
                 /*check if the two rows should switch place,
                 based on the direction, asc or desc:*/
 
-                if(Number(x) != "NaN")
+
+                // console.log(typeof x);
+                // // console.log(x);
+                // // console.log(Number(x));
+                // // console.log(x);
+                // // console.log(typeof Number(x));
+                //
+                // if(Number(x)=='NaN')
+                // {
+                //     x = x.toLowerCase();
+                //     y = y.toLowerCase();
+                // }
+                //
+                //
+                // if(Number(x) != "NaN")
+                // {
+                //     // console.log(Number(x));
+                //     // console.log("hwat");
+                //     x = Number(x);
+                //     y = Number(y);
+                // }
+
+                // else
+                // {
+                //     console.log("hwat");
+                //
+                //     x = x.toLowerCase();
+                //     y = y.toLowerCase();
+                //
+                //     console.log(typeof x);
+                // }
+
+
+                // if (dir == "asc") {
+                //
+                //
+                //     if (x > y) {
+                //         //if so, mark as a switch and break the loop:
+                //         shouldSwitch= true;
+                //         break;
+                //     }
+                // } else if (dir == "desc") {
+                //     if (x < y) {
+                //         //if so, mark as a switch and break the loop:
+                //         shouldSwitch = true;
+                //         break;
+                //     }
+                // }
+
+                if(n==2)
                 {
                     x = Number(x);
                     y = Number(y);
@@ -93,13 +142,13 @@
                 {
                     if (dir == "asc") {
 
-                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        if (x.toLowerCase() > y.toLowerCase()) {
                             //if so, mark as a switch and break the loop:
                             shouldSwitch= true;
                             break;
                         }
                     } else if (dir == "desc") {
-                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        if (x.toLowerCase() < y.toLowerCase()) {
                             //if so, mark as a switch and break the loop:
                             shouldSwitch = true;
                             break;
