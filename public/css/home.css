@@ -28,3 +28,13 @@
 #white-body {
   margin-bottom: 20rem;
 }
+
+.card-title {
+  display: block;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  overflow: hidden;
+  min-height: 3em;
+  max-height: 3em;
+  line-height: 1.5em;
+}

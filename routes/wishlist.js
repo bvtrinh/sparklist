@@ -157,4 +157,30 @@ router.get("/view/", authCheck, (req, res) => {
   });
 });
 
+
+router.post("/addlist", authCheck, async (req, res) => {
+  const item_id = req.body.id;
+  const list_id = { _id: req.body.list };
+  // Add item to wishlist
+  await Wishlist.updateOne(list_id, { $push: { items: item_id } });
+
+  // Redirect to wishlist view
+  res.redirect(`/wishlist/view/?wishlistID=${req.body.list}`);
+});
+
+router.post("/deleteItem/:wishlistID/:itemID", authCheck, async (req, res) => {
+  let wishlistID = req.params.wishlistID;
+  let itemID = req.params.itemID;
+
+  await Wishlist.findById(wishlistID).then(wishlist => {
+    if(wishlist){
+      wishlist.items.pull(itemID);
+      wishlist.save();
+    }
+  })
+
+  // Redirect to wishlist view
+  res.redirect(`/wishlist/view/?wishlistID=${wishlistID}`);
+});
+
 module.exports = router;

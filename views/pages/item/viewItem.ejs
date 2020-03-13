@@ -29,7 +29,7 @@
               </div>
               <% if (user) { %>
               <div class="col input-group">
-                <form method="POST" action="/item/addlist" class="form-inline">
+                <form method="POST" action="/wishlist/addlist" class="form-inline">
                   <input type="hidden" name="id" value="<%= item._id %>" />
                   <select id="list" class="custom-select" name="list" required>
                     <option disabled selected value="">Wishlists</option>
