@@ -20,6 +20,9 @@ const profile = require("./routes/profile");
 const group = require("./routes/group");
 const wishlist = require("./routes/wishlist");
 
+const addItem = require("./routes/addItem");
+const searchDB = require("./routes/searchDB");
+
 const app = express();
 
 // Body parser middleware
@@ -75,6 +78,10 @@ app.use("/auth", auth);
 app.use("/profile", profile);
 app.use("/group", group);
 app.use("/wishlist", wishlist);
+
+
+app.use("/searchDB", searchDB);
+app.use("/add", addItem);
 
 app.get("/", (req, res) => {
   Item.find()
