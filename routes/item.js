@@ -106,6 +106,35 @@ router.post("/search", async (req, res) => {
   }
 });
 
+router.post("/homeSearch", async (req, res) => {
+  const { keyword } = req.body;
+
+  const filters = {
+    title: new RegExp(keyword, "i")
+  };
+  try {
+    const items = await Item.find(filters);
+    if (items.length <= 0) throw "No search results found";
+    return res.render("pages/item/search", {
+      user: req.user,
+      items,
+      keyword,
+      sort_type: null,
+      sorts
+    });
+  } catch (err) {
+    return res.render("pages/item/search", {
+      keyword,
+      sort_type: null,
+      sorts,
+      user: req.user,
+      items: null,
+      err_msg: err
+    });
+  }
+});
+
+
 router.get("/:id", async (req, res) => {
   const item = await Item.findById(req.params.id);
   if (req.user) {
