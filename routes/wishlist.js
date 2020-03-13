@@ -157,4 +157,15 @@ router.get("/view/", authCheck, (req, res) => {
   });
 });
 
+
+router.post("/addlist", authCheck, async (req, res) => {
+  const item_id = req.body.id;
+  const list_id = { _id: req.body.list };
+  // Add item to wishlist
+  await Wishlist.updateOne(list_id, { $push: { items: item_id } });
+
+  // Should redirect to wishlist, this goes to the manage side
+  res.redirect(`/wishlist/view/?wishlistID=${req.body.list}`);
+});
+
 module.exports = router;

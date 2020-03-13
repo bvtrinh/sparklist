@@ -31,16 +31,6 @@ router.get("/add", authCheck, async (req, res) => {
   res.render("pages/item/addItem", { user: req.user, lists });
 });
 
-router.post("/addlist", authCheck, async (req, res) => {
-  const item_id = req.body.id;
-  const list_id = { _id: req.body.list };
-  // Add item to wishlist
-  await Wishlist.updateOne(list_id, { $push: { items: item_id } });
-
-  // Should redirect to wishlist, this goes to the manage side
-  res.redirect(`/wishlist/view/?wishlistID=${req.body.list}`);
-});
-
 router.post("/process", (req, res) => {
   const url = req.body.item_url;
   const list_id = { _id: req.body.list };
