@@ -4,6 +4,8 @@ const tokenfield = require("bootstrap-tokenfield-jquery3");
 // Models
 const User = require("../models/User");
 const Wishlist = require("../models/Wishlist");
+const Item = require("../models/Item");
+
 
 const authCheck = (req, res, next) => {
   if (!req.user) {
@@ -78,32 +80,17 @@ router.post("/update/", authCheck, (req, res) => {
 
   var usersList = sharedUsers.trim().split(",");
 
-  // console.log(usersList);
-  // usersList.forEach(function (item, index) {
-  //     console.log(item, index);
-  //   });
-
   Wishlist.findById(wishlistID).then(wishlist => {
     if (wishlist) {
       if (wishlistName != wishlist.name) {
         wishlist.name = wishlistName;
       }
 
-      // var members = wishlist.sharedUsers;
-      // members.forEach(function(member, index) {
-      //     console.log(member);
-      // });
       wishlist.sharedUsers = [];
 
-      // if(sharedUsers != wishlist.sharedUsers) {
       usersList.forEach(function(user, index) {
-        // if(!members.includes(user)){
         wishlist.sharedUsers.push(user.trim());
-        // }
       });
-
-      // wishlist.sharedUsers = sharedUsers;
-      // }
 
       if (visibility != undefined && visibility != wishlist.visibility) {
         wishlist.visibility = visibility;
@@ -131,13 +118,13 @@ router.get("/", authCheck, (req, res) => {
     if (wishlists.length == 0) {
       // user does not belong to any wishlists
       // add some type of message
-      res.render("pages/wishlist/viewWishlist", {
+      res.render("pages/wishlist/listWishlist", {
         user: req.user,
         msg: "You do not have any wishlists.",
         wishlists: wishlists
       });
     } else {
-      res.render("pages/wishlist/viewWishlist", {
+      res.render("pages/wishlist/listWishlist", {
         user: req.user,
         msg: "",
         wishlists: wishlists
@@ -151,6 +138,21 @@ router.get("/manage/", authCheck, (req, res) => {
   Wishlist.findById(wishlistID).then(wishlist => {
     if (wishlist) {
       res.render("pages/wishlist/updateWishlist", { wishlist, user: req.user });
+    }
+  });
+});
+
+router.get("/view/", authCheck, (req, res) => {
+  const wishlistID = req.query.wishlistID;
+
+  Wishlist.findById(wishlistID).then(wishlist => {
+    if(wishlist){
+      Promise.all(wishlist.items.map(item => {
+          return Item.findById(item).exec();
+      })).then(wishlistItems => {
+        // all found items here
+        res.render("pages/wishlist/viewWishlist", { wishlist, wishlistItems, user: req.user });
+      });    
     }
   });
 });
