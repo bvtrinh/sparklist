@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const labeler = require("../scripts/vision/labeling");
 const PriceFinder = require("price-finder");
+const scrape = require("../scripts/spider-pictures");
 const priceFind = new PriceFinder();
 // Item Model
 const Item = require("../models/Item");
@@ -49,11 +50,17 @@ router.post("/process", (req, res) => {
   // Pull title, price, image (tentative), labels
   // Need to pull image before getting labels
   priceFind.findItemDetails(url, async (err, itemDetails) => {
+    const img_url = await scrape.amazon(url);
+    const labels = await labeler(img_url[0]);
+
     const newItem = new Item({
       title: itemDetails.name,
       price_hist: { price: itemDetails.price, date: Date().toString() },
+      current_price: itemDetails.price,
       category: itemDetails.category,
-      url
+      img_url: img_url[0],
+      url,
+      labels
     });
 
     // Add item to wishlist
@@ -120,21 +127,3 @@ router.get("/:id", async (req, res) => {
 });
 
 module.exports = router;
-
-// router.get("view", authCheck, async (req, res) => {
-//   const wishlistID = req.query.wishlistID;
-//   const wishlist = await Wishlist.findById(wishlistID);
-//   if (wishlist) {
-//     let wishlistItems = [];
-//     wishlist.items.forEach(async item => {
-//       console.log("item: " + item);
-//       const wishlistItem = await Item.findById(item);
-//       if (wishlistItem) {
-//         wishlistItems.push(wishlistItem);
-//         console.log(wishlistItems);
-//       }
-//     });
-//     console.log(wishlistItems);
-//     res.render();
-//   }
-// });
