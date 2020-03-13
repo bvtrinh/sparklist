@@ -5,6 +5,16 @@ const priceFind = new PriceFinder();
 // Item Model
 const Item = require("../models/Item");
 const Wishlist = require("../models/Wishlist");
+
+// Dropdown for sorting type
+const sorts = [
+  ["count", "Popular"],
+  ["current_price", "Price: Low to High"],
+  ["-current_price", "Price: High to Low"],
+  ["title", "Name: A to Z"],
+  ["-title", "Name: Z to A"]
+];
+
 const authCheck = (req, res, next) => {
   if (!req.user) {
     // user not logged in
@@ -14,6 +24,7 @@ const authCheck = (req, res, next) => {
     next();
   }
 };
+
 router.get("/add", authCheck, async (req, res) => {
   const lists = await Wishlist.find({ owner: req.user.email });
   res.render("pages/item/addItem", { user: req.user, lists });
@@ -56,8 +67,46 @@ router.post("/process", (req, res) => {
 
 router.get("/search", async (req, res) => {
   Item.find().then(items => {
-    res.render("pages/item/search", { user: req.user, items });
+    res.render("pages/item/search", {
+      user: req.user,
+      items,
+      sorts,
+      sort_type: null
+    });
   });
+});
+
+router.post("/search", async (req, res) => {
+  const { keyword, min_price, max_price, sort_type } = req.body;
+
+  const filters = {
+    title: new RegExp(keyword, "i"),
+    current_price: { $lte: max_price, $gte: min_price }
+  };
+  try {
+    const items = await Item.find(filters).sort(sort_type);
+    if (items.length <= 0) throw "No search results found";
+    return res.render("pages/item/search", {
+      user: req.user,
+      items,
+      keyword,
+      min_price,
+      max_price,
+      sort_type,
+      sorts
+    });
+  } catch (err) {
+    return res.render("pages/item/search", {
+      keyword,
+      min_price,
+      max_price,
+      sort_type,
+      sorts,
+      user: req.user,
+      items: null,
+      err_msg: err
+    });
+  }
 });
 
 router.get("/:id", async (req, res) => {
@@ -71,3 +120,21 @@ router.get("/:id", async (req, res) => {
 });
 
 module.exports = router;
+
+// router.get("view", authCheck, async (req, res) => {
+//   const wishlistID = req.query.wishlistID;
+//   const wishlist = await Wishlist.findById(wishlistID);
+//   if (wishlist) {
+//     let wishlistItems = [];
+//     wishlist.items.forEach(async item => {
+//       console.log("item: " + item);
+//       const wishlistItem = await Item.findById(item);
+//       if (wishlistItem) {
+//         wishlistItems.push(wishlistItem);
+//         console.log(wishlistItems);
+//       }
+//     });
+//     console.log(wishlistItems);
+//     res.render();
+//   }
+// });

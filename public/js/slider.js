@@ -1,9 +1,11 @@
 $(document).ready(function() {
+  var min = parseInt($("#min-price").val());
+  var max = parseInt($("#max-price").val());
   $("#slider-range").slider({
     range: true,
     min: 0,
     max: 500,
-    values: [0, 500],
+    values: [min, max],
     slide: function(event, ui) {
       $("#min-price").val(ui.values[0]);
       $("#max-price").val(ui.values[1]);
@@ -11,8 +13,8 @@ $(document).ready(function() {
   });
 
   // Initial values
-  $("#min-price").val($("#slider-range").slider("values", 0));
-  $("#max-price").val($("#slider-range").slider("values", 1));
+  $("#slider-range").slider("values", 0, $("#min-price").val());
+  $("#slider-range").slider("values", 1, $("#max-price").val());
 
   $("#min-price").change(function() {
     var max = $("#max-price").val();

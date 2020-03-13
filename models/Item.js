@@ -7,8 +7,12 @@ const item_schema = new Schema({
   url: String,
   img_url: String,
   labels: Array,
+  current_price: Number,
   price_hist: [{ price: Number, date: Date }],
-  count: Number,
+  count: {
+    type: Number,
+    default: 1
+  },
   category: String
 });
 

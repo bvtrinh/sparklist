@@ -24,7 +24,7 @@
           <div class="card-body">
             <div class="row">
               <div class="col">
-                <h2>$<%= item.price_hist[item.price_hist.length - 1].price %></h2>
+                <h2>$<%= item.current_price %></h2>
                 <a href="<%= item.url %>">Buy Link</a>
               </div>
               <% if (user) { %>

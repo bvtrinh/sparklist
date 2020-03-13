@@ -17,7 +17,7 @@
     <div class="container mb-5">
         <h2 class='my-4'>Search</h2>
         <hr class="my-4">
-        <form method="GET" action="">
+        <form method="POST" action="/item/search">
             <div class="row input-group mb-3">
                 <div class="input-group-prepend">
                     <select class="form-control" name="category">
@@ -30,33 +30,38 @@
                     </select>
                 </div>
                 <input type="text" name="keyword" class="form-control" placeholder="See if the gift is listed already!"
-                    aria-label="Recipient's username" aria-describedby="button-addon2">
+                    aria-label="Recipient's username" aria-describedby="button-addon2"
+                    value="<%= typeof keyword !== 'undefined' ? keyword : '' %>">
                 <div class="input-group-append">
-                    <button class="btn btn-outline-primary" type="button" id="button-addon2"><i
+                    <button class="btn btn-outline-primary" type="submit" id="button-addon2"><i
                             class="fas fa-search"></i></button>
                 </div>
             </div>
             <div class="row mb-2 align-bottom">
                 <div class="py-2">Price: $</div>
-                <input type="number" min="0" class="form-control range-price" name="min-price" id="min-price">
+                <input type="number" min="0" class="form-control range-price" name="min_price" id="min-price"
+                    value="<%= typeof min_price !== 'undefined' ? min_price : 0 %>">
                 <div class="py-2">&nbsp - $</div>
-                <input type="number" max="500" class="form-control range-price" name="max-price" id="max-price">
+                <input type="number" max="500" class="form-control range-price" name="max_price" id="max-price"
+                    value="<%= typeof max_price !== 'undefined' ? max_price : 500 %>">
             </div>
             <div class="row justify-content-between">
                 <div class="mt-4 col-md-3" id="slider-range"></div>
-                <select class="mt-1 form-control col-md-3" name="category">
-                    <option value="popular">Popular</option>
-                    <option value="price-low">Price: Low to High</option>
-                    <option value="price-high">Price: High to Low</option>
-                    <option value="name-a">Name: A to Z</option>
-                    <option value="name-z">Name: Z to A</option>
-                </select>
+                <select class="mt-1 form-control col-md-3" name="sort_type">
+                    <% sorts.forEach(sort => { %>
+                    <% if (sort_type === sort[0]) { %>
+                    <option value="<%=sort[0]%>" selected><%= sort[1] %></option>
+                    <% } else { %>
+                    <option value="<%=sort[0]%>"><%= sort[1] %></option>
 
+                    <% } %>
+                    <% }); %>
+                </select>
             </div>
         </form>
         <hr class="my-4">
 
-        <div align="center" class="card-deck row row-cols-lg-4 row-cols-md-2">
+        <% if (items) { %> <div align="center" class="card-deck row row-cols-lg-4 row-cols-md-2">
 
             <% items.forEach(function(item) { %>
             <div class="col mb-5">
@@ -64,13 +69,16 @@
                     <img src="<%= item.img_url %>" class="card-img-top" alt="...">
                     <div class="card-body">
                         <h5 class="card-title"><a href="/item/<%= item.id %>"><%= item.title %></a></h5>
-                        <p class="card-text">$<%= item.price_hist[item.price_hist.length - 1].price %></p>
+                        <p class="card-text">$<%= item.current_price %></p>
                     </div>
                 </div>
             </div>
             <% }); %>
 
         </div> <!-- END CARD DECK -->
+        <% } else { %>
+        <h3><%= err_msg %></h3>
+        <% } %>
     </div> <!-- END CONTAINER -->
     <%- include ('../../partials/endBody.ejs') %>
     <script src="/js/slider.js"></script>
