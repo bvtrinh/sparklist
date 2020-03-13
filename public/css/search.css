@@ -1,0 +1,21 @@
+.range-price {
+  /* border: 0; */
+  /* font-weight: bold; */
+  width: 5rem;
+}
+#slider-range .ui-slider-range {
+  background: #007bff;
+}
+
+.card {
+  width: 15rem;
+}
+
+.card-img-top {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 13rem; /* You can set the dimensions to whatever you want */
+  height: 15rem;
+  object-fit: scale-down;
+}

@@ -17,13 +17,26 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/vision": "^1.11.0",
+    "axios": "^0.19.2",
+    "bcrypt": "^4.0.0",
     "bcryptjs": "^2.4.3",
+    "bootstrap-tokenfield-jquery3": "^0.12.1",
+    "cheerio": "^1.0.0-rc.3",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.4",
     "dotenv": "^8.2.0",
     "ejs": "^3.0.1",
     "ejs-promise": "^0.3.3",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
+    "fs": "0.0.1-security",
+    "jade": "^1.11.0",
     "mailgun-js": "^0.22.0",
-    "mongoose": "^5.9.4"
+    "mongoose": "^5.9.0",
+    "passport": "^0.4.1",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0",
+    "price-finder": "^5.0.2"
   }
 }

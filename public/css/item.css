@@ -1,0 +1,32 @@
+.item-card {
+  width: 25rem;
+}
+
+.card-img-top {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 20rem; /* You can set the dimensions to whatever you want */
+  height: 35rem;
+  object-fit: scale-down;
+}
+.card-img-price {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 20rem; /* You can set the dimensions to whatever you want */
+  height: 35rem;
+  object-fit: scale-down;
+}
+.price-card {
+  width: 30rem;
+}
+
+.card-sim-img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 13rem; /* You can set the dimensions to whatever you want */
+  height: 14rem;
+  object-fit: scale-down;
+}

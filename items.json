@@ -1,0 +1,50 @@
+[
+  {
+    "id": 0,
+    "title": "Champion Mens Heavyweight Jersey with Hood Hoodies",
+    "url": "https://www.amazon.ca/Champion-Heavyweight-Jersey-Sweater-Black/dp/B07L68SZJS/ref=pd_sbs_193_3/132-0098291-0097531?_encoding=UTF8&pd_rd_i=B07L69DSQH&pd_rd_r=640ec327-2569-46d2-99a2-a0bb847f2ed8&pd_rd_w=G0jge&pd_rd_wg=3tKNk&pf_rd_p=74b54c94-7195-4620-ba51-7d167ac58a58&pf_rd_r=RBR8C8GNB4CKDG0CFMYQ&refRID=RBR8C8GNB4CKDG0CFMYQ&th=1&psc=1",
+    "img_url": "https://images-na.ssl-images-amazon.com/images/I/71zU29X1JiL._AC_UY741_.jpg",
+    "labels": [],
+    "price_hist": [["39.83", "Tue Mar 10 23:04:51 PDT 2020"]]
+  },
+  {
+    "id": 1,
+    "title": "AirPods Pro",
+    "url": "https://www.apple.com/ca/shop/product/MWP22AM/A/airpods-pro",
+    "img_url": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/MWP22?wid=572&hei=572&fmt=jpeg&qlt=95&op_usm=0.5,0.5&.v=1572990352299",
+    "labels": [],
+    "price_hist": [["329.00", "Tue Mar 10 23:04:51 PDT 2020"]]
+  },
+  {
+    "id": 2,
+    "title": "Nike Tech Swoosh Cap, One Size",
+    "url": "https://www.amazon.ca/gp/product/B003KG04UM?pf_rd_r=BN87B1YWTGY48NRG1HA8&pf_rd_p=05326fd5-c43e-4948-99b1-a65b129fdd73",
+    "img_url": "https://images-na.ssl-images-amazon.com/images/I/61VO-9GI8nL._AC_SL1010_.jpg",
+    "labels": [],
+    "price_hist": [["43.09", "Tue Mar 10 23:04:51 PDT 2020"]]
+  },
+  {
+    "id": 3,
+    "title": "Mr. Coffee Mug Warmer",
+    "url": "https://www.amazon.ca/dp/B000CO89T8/ref=cm_gf_aAN_i18_i3_d_p0_qd0___________________JWIgm4wbtN5XdcLftD8S",
+    "img_url": "https://images-na.ssl-images-amazon.com/images/I/81Ja08WuPUL._AC_SL1500_.jpg",
+    "labels": [],
+    "price_hist": [["24.60", "Tue Mar 10 23:04:51 PDT 2020"]]
+  },
+  {
+    "id": 4,
+    "title": "Animal Crossing: New Horizons",
+    "url": "https://www.amazon.ca/Nintendo-HCCPACBAA-Animal-Crossing-Horizons/dp/B0812KNJDD/ref=zg_bs_videogames_home_1?_encoding=UTF8&psc=1&refRID=JS88MGHA9ZPEFSSCDGWM",
+    "img_url": "https://images-na.ssl-images-amazon.com/images/I/81UfEdvf2kL._AC_SL1500_.jpg",
+    "labels": [],
+    "price_hist": [["79.99", "Tue Mar 10 23:04:51 PDT 2020"]]
+  },
+  {
+    "id": 5,
+    "title": "Untamed",
+    "url": "https://www.amazon.ca/Untamed-Glennon-Doyle/dp/1984801252/ref=zg_bs_books_1?_encoding=UTF8&psc=1&refRID=70CMXMN0857VZ872D54M",
+    "img_url": "https://images-na.ssl-images-amazon.com/images/I/51f3CPTqkfL._SX328_BO1,204,203,200_.jpg",
+    "labels": [],
+    "price_hist": [["25.25", "Tue Mar 10 23:04:51 PDT 2020"]]
+  }
+]
