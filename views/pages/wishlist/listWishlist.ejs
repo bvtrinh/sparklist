@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <%- include ('../../partials/header.ejs') %>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Wishlists</title>
+</head>
+
+<body>
+    <%- include ('../../partials/navbar.ejs') %>
+    <div class="container">
+        <h1 class="mt-5 mb-3">Wishlists</h1>
+
+        <% if(msg != '') { %>
+        <p><%= msg %></p>
+        <% } %>
+
+        <a href="/wishlist/create"><button type="button" class="btn btn-primary" name="wishlist">Create
+                Wishlist</button></a>
+
+        <% if (wishlists) { %>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Members</th>
+                    <th scope="col">Visibility</th>
+                    <th scope="col">Edit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% wishlists.forEach(wishlist => { %>
+                <tr>
+                    <td><%= wishlist._id %></td>
+                    <td><a href="/wishlist/view/?wishlistID=<%= wishlist._id %>"><%= wishlist.name %></a></td>
+                    <td><%= wishlist.sharedUsers %></td>
+                    <td><%= wishlist.visibility %></td>
+                    <td><a href="/wishlist/manage/?wishlistID=<%= wishlist._id %>"><i class="fas fa-edit"></i></a></td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+        <% } %>
+
+    </div>
+
+    <%- include ('../../partials/endBody.ejs') %>
+</body>
+
+
+</html>

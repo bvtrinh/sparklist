@@ -2,53 +2,40 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <%- include ('../../partials/header.ejs') %>
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Wishlists</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%- include ('../../partials/header.ejs') %>
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="/css/home.css">
+  <title>Wishlist: <%= wishlist.name %> </title>
 </head>
 
 <body>
-    <%- include ('../../partials/navbar.ejs') %>
-    <div class="container">
-        <h1 class="mt-5 mb-3">Wishlists</h1>
+  <%- include ('../../partials/navbar.ejs') %>
+  
+  <div class="container" id="white-body">
+    <h1><%= wishlist.name %></h1>
+    <% if (wishlistItems.length > 0) { %>
+        <div align="center" class="card-deck row row-cols-lg-4 row-cols-md-2">
+            <% wishlistItems.forEach(item => { %>
+            <div class="col mb-2">
+              <div class="card h-100 pt-3 shadow">
+                <img src="<%= item.img_url %>" class="card-img-top" alt="...">
+                <div class="card-body">
+                  <h5 class="card-title"><a href="/item/<%= item.id %>"><%= item.title %></a></h5>
+                  <p class="card-text">$<%= item.price_hist[item.price_hist.length - 1].price %></p>
+                </div>
+              </div>
+            </div>
+            <% }); %>
+      
+          </div>
+        <% } else { %>
+            <p>There are no item in this wishlist.</p>
+        <% } %> 
+  </div> <!-- END CONTAINER -->
 
-        <% if(msg != '') { %>
-        <p><%= msg %></p>
-        <% } %>
-
-        <a href="/wishlist/create"><button type="button" class="btn btn-primary" name="wishlist">Create
-                Wishlist</button></a>
-
-        <% if (wishlists) { %>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Members</th>
-                    <th scope="col">Visibility</th>
-                    <th scope="col">Edit</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% wishlists.forEach(wishlist => { %>
-                <tr>
-                    <td><%= wishlist._id %></td>
-                    <td><%= wishlist.name %></td>
-                    <td><%= wishlist.sharedUsers %></td>
-                    <td><%= wishlist.visibility %></td>
-                    <td><a href="/wishlist/manage/?wishlistID=<%= wishlist._id %>"><i class="fas fa-edit"></i></a></td>
-                </tr>
-                <% }); %>
-            </tbody>
-        </table>
-        <% } %>
-
-    </div>
-
-    <%- include ('../../partials/endBody.ejs') %>
+  <%- include ('../../partials/endBody.ejs') %>
 </body>
 
 
