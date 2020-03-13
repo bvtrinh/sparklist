@@ -22,6 +22,8 @@
          <div class="login-form">
             <h2>Login</h2>
             <form action="/auth/login" method="POST">
+               <a href="/auth/google"><button type="button" class="google-btn mb-2"><img
+                        src="/img/google-btn.png" /></button></a>
                <%- include ('../../partials/messages.ejs') %>
                <div class="form-group">
                   <input type="text" class="form-control" name="email" placeholder="Email">
@@ -30,8 +32,6 @@
                   <input type="password" class="form-control" name="password" placeholder="Password">
                </div>
                <button type="submit" class="btn btn-black" style="color: #fff;">Login</button>
-               <a href="/auth/google"><button type="button" class="btn btn-black"
-                     style="color: #fff;">Google</button></a>
                <a href="/user/register"><button type="button" class="btn btn-secondary">Register</button></a>
 
             </form>

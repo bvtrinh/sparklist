@@ -78,3 +78,9 @@ body {
   background-color: #000 !important;
   color: #fff;
 }
+
+.google-btn {
+  padding: 0;
+  border: 0;
+  background: white;
+}
