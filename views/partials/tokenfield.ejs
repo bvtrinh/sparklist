@@ -1,13 +1,16 @@
-<<script type="text/javascript" src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.1/typeahead.bundle.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tokenfield/0.12.0/bootstrap-tokenfield.js"></script>
+<script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.js"></script>
+<script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.1/typeahead.bundle.min.js"></script>
+<script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tokenfield/0.12.0/bootstrap-tokenfield.js"></script>
 <script type="text/javascript">
     $(function () {
         var engine = new Bloodhound({
             local: [],
-            datumTokenizer: function(d) {
+            datumTokenizer: function (d) {
                 return Bloodhound.tokenizers.whitespace(d.value);
             },
             queryTokenizer: Bloodhound.tokenizers.whitespace
