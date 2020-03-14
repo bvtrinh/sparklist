@@ -22,7 +22,7 @@ const authCheck = (req, res, next) => {
 const sendNotification = async (newInvites, fullname, listID, listname) => {
   // Send email notification to groups
   let list_link;
-  list_link = `${process.env.DOMAIN_LINK}/wishlist/view/?=wishlistID=${listID}`;
+  list_link = `${process.env.DOMAIN_LINK}/wishlist/view/?wishlistID=${listID}`;
 
   const params = {
     fullname,
