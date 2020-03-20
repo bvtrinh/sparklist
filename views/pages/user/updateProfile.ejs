@@ -17,7 +17,7 @@
     <h1 class="card-title mt-5 mb-3">Edit Profile</h1>
     <div class="card h-100 pt-3 shadow">
       <div class="card-body">
-        <form action="/profile/update/?userID=<%= user._id %> " method="POST">
+        <form action="/user/update/?userID=<%= user._id %> " method="POST">
             <div class="form-group">
               <label for="fname">First Name</label>
               <input type="text" class="form-control" id="fname" name="fname" 
@@ -33,7 +33,7 @@
                 value="<%= typeof user.email != 'undefined' ? user.email: '' %>" placeholder="Enter Email">
             </div>
   
-            <a class="btn btn-primary mb-3" href="/profile/updatePassword">Change Password</a>
+            <a class="btn btn-primary mb-3" href="/user/updatePassword">Change Password</a>
             <br>
             <button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
           </form>
