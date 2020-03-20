@@ -71,7 +71,6 @@ app.use((req, res, next) => {
 app.use("/item", items);
 app.use("/user", users);
 app.use("/auth", auth);
-app.use("/profile", profile);
 app.use("/group", group);
 app.use("/wishlist", wishlist);
 
