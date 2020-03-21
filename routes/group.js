@@ -168,10 +168,13 @@ router.get("/", authCheck, (req, res) => {
         groups: groups
       });
     } else {
+      const sharedGrps = groups.filter(grp => grp.admin !== req.user.email);
+      const myGrps = groups.filter(grp => grp.admin === req.user.email);
       res.render("pages/group/viewGroup", {
         user: req.user,
         msg: "",
-        groups: groups
+        sharedGrps,
+        myGrps
       });
     }
   });

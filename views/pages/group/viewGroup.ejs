@@ -13,42 +13,77 @@
     <%- include ('../../partials/navbar.ejs') %>
     <div class="container">
         <h1 class="mt-5 mb-3">Groups</h1>
+        <a href="/group/create"><button type="button" class="btn btn-primary" name="group">Create Group</button></a>
+        <hr class="my-4">
 
         <% if(msg != '') { %>
         <p><%= msg %></p>
         <% } %>
 
-        <a href="/group/create"><button type="button" class="btn btn-primary" name="group">Create Group</button></a>
 
-        <% if (groups) { %>
-        <table class="table table-responsive">
-            <thead>
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Admin</th>
-                    <th scope="col">Members</th>
-                    <th scope="col">Visibility</th>
-                    <th scope="col">Set Wishlist</th>
-                    <th scope="col">Edit</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% groups.forEach(group => { %>
-                <tr>
-                    <td><%= group._id %></td>
-                    <td><%= group.name %></td>
-                    <td><%= group.admin %></td>
-                    <td><%= group.members %></td>
-                    <td><%= group.visibility %></td>
-                    <td><button type="button" class="btn btn-success" id="addListToGrp" data-toggle="modal"
-                            data-target="#exampleModalCenter"><i class="fas fa-plus"></i></button></td>
-                    <td><a class="btn btn-info" href="/group/manage/?groupID=<%= group._id %>"><i
-                                class="fas fa-edit"></i></a></td>
-                </tr>
-                <% }); %>
-            </tbody>
-        </table>
+        <% if (myGrps) { %>
+        <h2>My Groups</h2>
+        <div class="table-responsive">
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col" width="35%">Name</th>
+                        <th scope="col" width="35%">Admin</th>
+                        <th scope="col">Visibility</th>
+                        <th scope="col">Set Wishlist</th>
+                        <th scope="col">Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% myGrps.forEach(group => { %>
+                    <% if (group.admin === user.email) { %>
+                    <tr>
+                        <td width="35%"><%= group.name %></td>
+                        <td width="35%"><%= group.admin %></td>
+                        <td><%= group.visibility %></td>
+                        <td><button type="button" class="btn btn-success" id="addListToGrp" data-toggle="modal"
+                                data-target="#exampleModalCenter"><i class="fas fa-plus"></i></button></td>
+                        <td><a class="btn btn-info" href="/group/manage/?groupID=<%= group._id %>"><i
+                                    class="fas fa-edit"></i></a></td>
+                    </tr>
+                    <% } %>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+        <% } %>
+
+        <% if (sharedGrps) { %>
+        <h2 class="mt-5">Shared Groups</h2>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col" width="35%">Name</th>
+                        <th scope="col" width="35%">Admin</th>
+                        <th scope="col">Visibility</th>
+                        <th scope="col">Set Wishlist</th>
+                        <th scope="col">Leave Group</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% sharedGrps.forEach(group => { %>
+                    <% if (group.admin !== user.email) { %>
+                    <tr>
+                        <td width="35%"><%= group.name %></td>
+                        <td width="35%"><%= group.admin %></td>
+                        <td><%= group.visibility %></td>
+                        <td><button type="button" class="btn btn-success" id="addListToGrp" data-toggle="modal"
+                                data-target="#exampleModalCenter"><i class="fas fa-plus"></i></button></td>
+                        <td><a class="btn btn-danger" href="/group/manage/?groupID=<%= group._id %>"><i
+                                    class="fas fa-trash"></i></a></td>
+                    </tr>
+                    <% } %>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
         <% } %>
         <input type="hidden" id="useremail" value="<%= user.email%>">
 
