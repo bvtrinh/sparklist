@@ -189,4 +189,28 @@ router.get("/manage/", authCheck, (req, res) => {
   });
 });
 
+router.post("/groupinfo", async (req, res) => {
+  const groupID = req.body.id;
+
+  const { id, name, admin } = await Group.findById(groupID);
+
+  return res.json({ id, name, admin });
+});
+
+router.post("/leavegrp/:id", async (req, res) => {
+  const groupID = req.params.id;
+
+  console.log(req.user.email);
+  try {
+    const results = await Group.updateOne(
+      { _id: groupID },
+      { $pull: { members: `${req.user.email}` } }
+    );
+
+    return res.json({ status: 0 });
+  } catch (err) {
+    return res.json({ status: 1 });
+  }
+});
+
 module.exports = router;
