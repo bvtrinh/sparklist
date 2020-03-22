@@ -165,7 +165,8 @@ router.get("/", authCheck, (req, res) => {
       res.render("pages/group/viewGroup", {
         user: req.user,
         msg: "You do not have any groups.",
-        groups: groups
+        sharedGrps: "",
+        myGrps: ""
       });
     } else {
       const sharedGrps = groups.filter(grp => grp.admin !== req.user.email);
@@ -210,6 +211,20 @@ router.post("/leavegrp/:id", async (req, res) => {
     return res.json({ status: 0 });
   } catch (err) {
     return res.json({ status: 1 });
+  }
+});
+
+router.post("/addlist", async (req, res) => {
+  const groupID = req.body.groupID;
+  const wishlistID = req.body.wishlistID;
+
+  try {
+    await Group.findByIdAndUpdate(groupID, {
+      $addToSet: { wishlists: wishlistID }
+    });
+    return res.json({ status: 0 });
+  } catch (err) {
+    return res.json({ status: 1, msg: err });
   }
 });
 

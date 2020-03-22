@@ -22,7 +22,7 @@
 
 
         <% if (myGrps.length > 0) { %>
-        <h2>My Groups</h2>
+        <h2>Managed Groups</h2>
         <div class="table-responsive">
 
             <table class="table">
@@ -42,8 +42,8 @@
                         <td width="35%"><%= group.name %></td>
                         <td width="35%"><%= group.admin %></td>
                         <td><%= group.visibility %></td>
-                        <td><button type="button" class="btn btn-success" id="addListToGrp" data-toggle="modal"
-                                data-target="#addList"><i class="fas fa-plus"></i></button></td>
+                        <td><button type="button" class="btn btn-success addList" id="<%= group.id %>"
+                                data-toggle="modal" data-target="#addList"><i class="fas fa-plus"></i></button></td>
                         <td><a class="btn btn-info" href="/group/manage/?groupID=<%= group._id %>"><i
                                     class="fas fa-edit"></i></a></td>
                     </tr>
@@ -64,7 +64,7 @@
                         <th scope="col" width="35%">Admin</th>
                         <th scope="col">Visibility</th>
                         <th scope="col">Set Wishlist</th>
-                        <th scope="col">Leave Group</th>
+                        <th scope="col">Leave </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -74,8 +74,8 @@
                         <td width="35%"><%= group.name %></td>
                         <td width="35%"><%= group.admin %></td>
                         <td><%= group.visibility %></td>
-                        <td><button type="button" class="btn btn-success" id="addListToGrp" data-toggle="modal"
-                                data-target="#addList"><i class="fas fa-plus"></i></button></td>
+                        <td><button type="button" class="btn btn-success addList" id="<%= group.id %>"
+                                data-toggle="modal" data-target="#addList"><i class="fas fa-plus"></i></button></td>
                         <td><button type="button" class="btn btn-danger leaveGrp" data-toggle="modal"
                                 data-target="#leaveModal" id="<%= group.id %>"><i class="fas fa-trash"></i></button>
                         </td>
@@ -102,11 +102,13 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    This wishlist will be binded with this gr
+                    <select class="custom-select" id="wishlists">
+
+                    </select>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-primary submit-list">Save changes</button>
                 </div>
             </div>
         </div>
@@ -121,9 +123,6 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">
                         Are you sure you want to leave this group?</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span
-                            aria-hidden="true">&times;</span>
-                    </button>
                 </div>
 
                 <div class="modal-body">
@@ -145,7 +144,7 @@
                     </table>
                 </div>
 
-                <div align="center" class="del-modal-btn">
+                <div align="center" class="del-modal-btn mb-3">
                     <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">No</button>
                     <button type="button" class="btn btn-outline-danger" id="final-del">Yes</a>
                 </div>

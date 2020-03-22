@@ -11,7 +11,7 @@ $(document).ready(function() {
       success: function(data) {
         $("#delID").html(data.id);
         $("#delName").html(data.name);
-        $("#delEmail").html(data.email);
+        $("#delAdmin").html(data.admin);
       }
     });
   });

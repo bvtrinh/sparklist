@@ -7,6 +7,7 @@ require("dotenv").config(path.join(__dirname, "../.env"));
 // Models
 const User = require("../models/User");
 const Wishlist = require("../models/Wishlist");
+const Group = require("../models/Group");
 const Item = require("../models/Item");
 
 const authCheck = (req, res, next) => {
@@ -146,8 +147,23 @@ router.post("/delete/", authCheck, (req, res) => {
 
 // AJAX called used to fill the modal on the view /group/viewGroup
 router.post("/getlists", async (req, res) => {
+  const groupID = req.body.groupID;
   const results = await Wishlist.find({ owner: req.user.email });
-  res.json({ results });
+  const idObj = await Wishlist.find({ owner: req.user.email }, { _id: 1 });
+  var ids = [];
+  idObj.forEach(ele => {
+    ids.push(ele._id);
+  });
+  const grps = await Group.findById(groupID, { wishlists: 1 });
+
+  // Get the current lists
+  var currentList = ids
+    .filter(id => {
+      return grps.wishlists.includes(id);
+    })
+    .join();
+
+  return res.json({ results, currentList });
 });
 
 router.get("/", authCheck, (req, res) => {
