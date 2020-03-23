@@ -156,7 +156,7 @@ router.post("/getlists", async (req, res) => {
   });
   const grps = await Group.findById(groupID, { wishlists: 1 });
 
-  // Get the current lists
+  // Get the current list
   var currentList = ids
     .filter(id => {
       return grps.wishlists.includes(id);

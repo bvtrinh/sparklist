@@ -43,7 +43,9 @@ $(document).ready(function() {
         data: { groupID, wishlistID },
         dataType: "JSON",
         success: function(data) {
-          console.log(data);
+          if (data.status === 0) {
+            $("#addList").modal("hide");
+          }
         }
       });
     });

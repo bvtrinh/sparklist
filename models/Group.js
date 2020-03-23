@@ -15,10 +15,7 @@ const GroupSchema = new Schema({
     type: [String],
     require: false
   },
-  wishlists: {
-    type: [Schema.Types.ObjectId],
-    ref: "Wishlists"
-  },
+  wishlists: [{ type: Schema.Types.ObjectId, ref: "wishlist" }],
   visibility: {
     type: String,
     enum: ["public", "private"],
