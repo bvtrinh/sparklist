@@ -24,9 +24,6 @@ const GroupSchema = new Schema({
   date: {
     type: Date,
     default: Date.now
-  },
-  admin_wishlist_id: {
-    type: Schema.Types.ObjectId
   }
 });
 

@@ -36,12 +36,9 @@ const ownerCheck = async (req, res, next) => {
   }
 };
 
-// A user should be able to view a wishlist if they are on the sharedlist of 
-// the wishlist, the owner, or part of the group the wishlist is attached to 
-const accessCheck = async (req, res, next) => {
-  const results;
-
-};
+// A user should be able to view a wishlist if they are on the sharedlist of
+// the wishlist, the owner, or part of the group the wishlist is attached to
+const accessCheck = async (req, res, next) => {};
 
 const sendNotification = async (newInvites, fullname, listID, listname) => {
   // Send email notification to groups
@@ -160,12 +157,23 @@ router.post("/update/", authCheck, ownerCheck, (req, res) => {
   res.redirect("/wishlist/manage/?wishlistID=" + wishlistID);
 });
 
-router.post("/delete/", authCheck, ownerCheck, (req, res) => {
+router.post("/delete/", authCheck, ownerCheck, async (req, res) => {
   let wishlistID = req.query.wishlistID;
-  Wishlist.findOneAndDelete({ _id: wishlistID }, function(err) {
-    if (err) console.log(err);
+  try {
+    // Get the group IDs that are related to this group
+    const { groups } = await Wishlist.findById(wishlistID, { groups: 1 });
+
+    // Remove the wishlist id from the groups
+    await Group.updateMany(
+      { _id: { $in: groups } },
+      { $pull: { wishlists: wishlistID } }
+    );
+
+    await Wishlist.findOneAndDelete({ _id: wishlistID });
     res.redirect("/wishlist");
-  });
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 // AJAX called used to fill the modal on the view /group/viewGroup

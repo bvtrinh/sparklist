@@ -6,6 +6,7 @@ require("dotenv").config(path.join(__dirname, "../.env"));
 // Models
 const User = require("../models/User");
 const Group = require("../models/Group");
+const Wishlist = require("../models/Wishlist");
 
 const authCheck = (req, res, next) => {
   if (!req.user) {
@@ -34,6 +35,17 @@ async function removeWishlists(deletedMembers, groupID) {
       { $pull: { wishlists: { $in: idArr } } }
     );
   }
+}
+
+async function removeGroupFromList(deletedMembers, groupID) {
+  // With the list of emails, owner $in: deleteMembers
+  // and groups: groupID then remove the group
+  const results = await Wishlist.updateMany(
+    {
+      owner: { $in: deletedMembers }
+    },
+    { $pull: { groups: groupID } }
+  );
 }
 
 const sendNotification = async (newInvites, fullname, groupname) => {
@@ -97,12 +109,12 @@ router.post("/create", authCheck, (req, res) => {
         });
       } else {
         const fullname = `${req.user.fname} ${req.user.lname}`;
-        sendNotification(invites, fullname, groupName);
+        // sendNotification(invites, fullname, groupName);
         new Group({
           name: groupName,
           admin: req.user.email,
           visibility: visibility,
-          members: invites
+          members: invites.trim().split(", ")
         })
           .save()
           .then(newGroup => {
@@ -163,10 +175,11 @@ router.post("/update/", authCheck, (req, res) => {
 
         if (deletedMembers.length > 0) {
           removeWishlists(deletedMembers, groupID);
+          removeGroupFromList(deletedMembers, groupID);
         }
 
         if (newMembers.length > 0) {
-          sendNotification(newMembers, fullname, group.name);
+          // sendNotification(newMembers, fullname, group.name);
         }
       }
 
@@ -177,12 +190,23 @@ router.post("/update/", authCheck, (req, res) => {
   res.redirect("/group/manage/?groupID=" + groupID);
 });
 
-router.post("/delete/", (req, res) => {
+router.post("/delete/", async (req, res) => {
   let groupID = req.query.groupID;
-  Group.findOneAndDelete({ _id: groupID }, function(err) {
-    if (err) console.log(err);
+  try {
+    // Get the wishlist ids that are related to this group
+    const { wishlists } = await Group.findById(groupID, { wishlists: 1 });
+
+    // Remove the group id from the wishlists
+    await Wishlist.updateMany(
+      { _id: { $in: wishlists } },
+      { $pull: { groups: groupID } }
+    );
+
+    await Group.findOneAndDelete({ _id: groupID });
     res.redirect("/group");
-  });
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 router.get("/", authCheck, (req, res) => {
@@ -263,15 +287,27 @@ router.post("/addlist", async (req, res) => {
     const ids = results.wishlists;
     if (ids.length > 0) {
       var idArr = [];
-      ids.forEach(item => {
+      ids.forEach(async item => {
         idArr.push(item._id);
       });
       await Group.updateOne(
         { _id: groupID },
         { $pull: { wishlists: { $in: idArr } } }
       );
+      // Remove the group from the wishlist.groups array
+      const results = await Wishlist.updateMany(
+        { _id: { $in: idArr } },
+        { $pull: { groups: groupID } }
+      );
     }
 
+    // Add the group to the wishlist
+    await Wishlist.updateOne(
+      { _id: wishlistID },
+      {
+        $addToSet: { groups: groupID }
+      }
+    );
     // Add the updated binded wishlist
     await Group.updateOne(
       { _id: groupID },
