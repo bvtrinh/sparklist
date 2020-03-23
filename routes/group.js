@@ -287,11 +287,8 @@ router.post("/addlist", async (req, res) => {
 
 router.get("/view/:groupID", authCheck, async (req, res) => {
   const groupID = req.params.groupID;
-
-  const results = await Group.findById(groupID).populate("wishlists");
-  console.log(results);
-
-  res.render("pages/group/viewGroup", results);
+  const group = await Group.findById(groupID).populate("wishlists");
+  res.render("pages/group/viewGroup", { group, user: req.user });
 });
 
 module.exports = router;

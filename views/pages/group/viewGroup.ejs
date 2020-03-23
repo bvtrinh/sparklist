@@ -12,7 +12,40 @@
 <body>
     <%- include ('../../partials/navbar.ejs') %>
     <div class="container">
-        <h1 class="mt-5 mb-3">Groups</h1>
+        <h1 class="mt-5 mb-3"><%=group.name%></h1>
+        <h4>Admin: <%=group.admin%></h4>
+        <hr class="my-4">
+        <h2>Members:</h2>
+        <hr class="my-4">
+        <ul>
+            <% group.members.forEach(member => { %>
+            <li><%= member%></li>
+            <% }); %>
+        </ul>
+
+        <% if (group.wishlists) { %>
+        <h2>Shared Wishlists</h2>
+        <div class="table-responsive"></div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Owner</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% group.wishlists.forEach(list => { %>
+                <tr>
+                    <td><a href="/wishlist/view/?wishlistID=<%= list._id %>"><%=list.name %></a></td>
+                    <td><%=list.owner%></td>
+
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+        <% } %>
+
+
 
         <%- include ('../../partials/endBody.ejs') %>
         <script src="/js/addListToGrp.js"></script>

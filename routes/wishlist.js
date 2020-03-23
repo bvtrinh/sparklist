@@ -20,6 +20,8 @@ const authCheck = (req, res, next) => {
   }
 };
 
+const permissionCheck = async (req, res, next) => {};
+
 const sendNotification = async (newInvites, fullname, listID, listname) => {
   // Send email notification to groups
   let list_link;
