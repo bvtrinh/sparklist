@@ -262,6 +262,11 @@ router.get("/manage/", authCheck, ownerCheck, (req, res) => {
 router.get("/view/", authCheck, accessCheck, (req, res) => {
   const wishlistID = req.query.wishlistID;
 
+  if (req.session.errors) {
+    var errors = req.session.errors;
+    delete req.session.errors;
+  }
+
   Wishlist.findById(wishlistID).then(wishlist => {
     if (wishlist) {
       Promise.all(
@@ -271,6 +276,7 @@ router.get("/view/", authCheck, accessCheck, (req, res) => {
       ).then(wishlistItems => {
         // all found items here
         res.render("pages/wishlist/viewWishlist", {
+          errors,
           wishlist,
           wishlistItems,
           user: req.user
@@ -284,10 +290,17 @@ router.post("/addlist", authCheck, async (req, res) => {
   const item_id = req.body.id;
   const list_id = { _id: req.body.list };
   // Add item to wishlist
-  await Wishlist.updateOne(list_id, { $push: { items: item_id } });
+  const result = await Wishlist.updateOne(list_id, {
+    $addToSet: { items: item_id }
+  });
+  var errors = [];
+  if (result.nModified <= 0) {
+    errors.push({ msg: "You've add this item to this wishlist already" });
+    req.session.errors = errors;
+  }
 
   // Redirect to wishlist view
-  res.redirect(`/wishlist/view/?wishlistID=${req.body.list}`);
+  return res.redirect(`/wishlist/view/?wishlistID=${req.body.list}`);
 });
 
 router.post(
