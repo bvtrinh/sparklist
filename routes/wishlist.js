@@ -20,7 +20,28 @@ const authCheck = (req, res, next) => {
   }
 };
 
-const permissionCheck = async (req, res, next) => {};
+const ownerCheck = async (req, res, next) => {
+  const results = await Wishlist.findOne({
+    $and: [
+      { owner: req.user.email },
+      { _id: req.query.wishlistID || req.params.wishlistID }
+    ]
+  });
+
+  if (results) {
+    next();
+  } else {
+    // Current user is not the owner of the wishlist redirect to error page
+    res.redirect("/error");
+  }
+};
+
+// A user should be able to view a wishlist if they are on the sharedlist of 
+// the wishlist, the owner, or part of the group the wishlist is attached to 
+const accessCheck = async (req, res, next) => {
+  const results;
+
+};
 
 const sendNotification = async (newInvites, fullname, listID, listname) => {
   // Send email notification to groups
@@ -99,7 +120,7 @@ router.post("/create", authCheck, (req, res) => {
   }
 });
 
-router.post("/update/", authCheck, (req, res) => {
+router.post("/update/", authCheck, ownerCheck, (req, res) => {
   const { wishlistName, sharedUsers, visibility } = req.body;
   let wishlistID = req.query.wishlistID;
 
@@ -139,7 +160,7 @@ router.post("/update/", authCheck, (req, res) => {
   res.redirect("/wishlist/manage/?wishlistID=" + wishlistID);
 });
 
-router.post("/delete/", authCheck, (req, res) => {
+router.post("/delete/", authCheck, ownerCheck, (req, res) => {
   let wishlistID = req.query.wishlistID;
   Wishlist.findOneAndDelete({ _id: wishlistID }, function(err) {
     if (err) console.log(err);
@@ -191,7 +212,7 @@ router.get("/", authCheck, (req, res) => {
   });
 });
 
-router.get("/manage/", authCheck, (req, res) => {
+router.get("/manage/", authCheck, ownerCheck, (req, res) => {
   let wishlistID = req.query.wishlistID;
   Wishlist.findById(wishlistID).then(wishlist => {
     if (wishlist) {
@@ -200,7 +221,7 @@ router.get("/manage/", authCheck, (req, res) => {
   });
 });
 
-router.get("/view/", authCheck, (req, res) => {
+router.get("/view/", authCheck, accessCheck, (req, res) => {
   const wishlistID = req.query.wishlistID;
 
   Wishlist.findById(wishlistID).then(wishlist => {
@@ -231,19 +252,24 @@ router.post("/addlist", authCheck, async (req, res) => {
   res.redirect(`/wishlist/view/?wishlistID=${req.body.list}`);
 });
 
-router.post("/deleteItem/:wishlistID/:itemID", authCheck, async (req, res) => {
-  let wishlistID = req.params.wishlistID;
-  let itemID = req.params.itemID;
+router.post(
+  "/deleteItem/:wishlistID/:itemID",
+  authCheck,
+  ownerCheck,
+  async (req, res) => {
+    let wishlistID = req.params.wishlistID;
+    let itemID = req.params.itemID;
 
-  await Wishlist.findById(wishlistID).then(wishlist => {
-    if (wishlist) {
-      wishlist.items.pull(itemID);
-      wishlist.save();
-    }
-  });
+    await Wishlist.findById(wishlistID).then(wishlist => {
+      if (wishlist) {
+        wishlist.items.pull(itemID);
+        wishlist.save();
+      }
+    });
 
-  // Redirect to wishlist view
-  res.redirect(`/wishlist/view/?wishlistID=${wishlistID}`);
-});
+    // Redirect to wishlist view
+    res.redirect(`/wishlist/view/?wishlistID=${wishlistID}`);
+  }
+);
 
 module.exports = router;
