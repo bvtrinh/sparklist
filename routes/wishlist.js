@@ -38,7 +38,37 @@ const ownerCheck = async (req, res, next) => {
 
 // A user should be able to view a wishlist if they are on the sharedlist of
 // the wishlist, the owner, or part of the group the wishlist is attached to
-const accessCheck = async (req, res, next) => {};
+const accessCheck = async (req, res, next) => {
+  const shared = await Wishlist.findOne({
+    $and: [
+      { _id: req.query.wishlistID || req.params.wishlistID },
+      { sharedUsers: req.user.email }
+    ]
+  });
+
+  const owner = await Wishlist.findOne({
+    $and: [
+      { owner: req.user.email },
+      { _id: req.query.wishlistID || req.params.wishlistID }
+    ]
+  });
+
+  const group = await Wishlist.findOne(
+    {
+      _id: req.query.wishlistID || req.params.wishlistID
+    },
+    { groups: 1 }
+  ).populate({
+    path: "groups",
+    match: { $or: [{ members: req.user.email }, { admin: req.user.email }] }
+  });
+
+  if (shared || owner || group) {
+    next();
+  } else {
+    res.redirect("/error");
+  }
+};
 
 const sendNotification = async (newInvites, fullname, listID, listname) => {
   // Send email notification to groups
