@@ -4,4 +4,13 @@ node_modules/
 
 todo.*
 
+# Google vision file
 Vision-test-0d87ab709fc0.json
+sparklist2020-270319-39eb0709284b.json
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# Nginx
+nginx/
