@@ -1,7 +1,7 @@
 const router = require("express").Router();
 
 const authCheck = (req, res, next) => {
-  if (!req.session.passport.user) {
+  if (!req.isAuthenticated()) {
     // user not logged in
     res.redirect("/user/login");
   } else {

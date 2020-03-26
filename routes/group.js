@@ -6,7 +6,7 @@ const User = require("../models/User");
 const Group = require("../models/Group");
 
 const authCheck = (req, res, next) => {
-  if (!req.session.passport.user) {
+  if (!req.isAuthenticated()) {
     // user not logged in
     res.redirect("/user/login");
   } else {
@@ -14,13 +14,19 @@ const authCheck = (req, res, next) => {
     next();
   }
 };
+const getUserInfo = req => {
+  return req.isAuthenticated() ? req.session.passport.user : undefined;
+};
 
-router.get("/create", (req, res) => {
-  res.render("pages/group/createGroup", { user: req.session.passport.user });
+router.get("/create", authCheck, (req, res) => {
+  const user = getUserInfo(req);
+  res.render("pages/group/createGroup", { user });
 });
 
 // handle group creation
-router.post("/create", (req, res) => {
+router.post("/create", authCheck, (req, res) => {
+  const user = getUserInfo(req);
+
   const { groupName, invites, visibility } = req.body;
   let errors = [];
 
@@ -53,7 +59,7 @@ router.post("/create", (req, res) => {
             "You already created a group with this name. Please try again with a different name."
         });
         res.render("pages/group/createGroup", {
-          user: req.session.passport.user,
+          user,
           errors,
           invites,
           visibility
@@ -101,7 +107,7 @@ router.post("/update/", (req, res) => {
   res.redirect("/group/manage/?groupID=" + groupID);
 });
 
-router.post("/delete/", (req, res) => {
+router.post("/delete/", authCheck, (req, res) => {
   let groupID = req.query.groupID;
   Group.findOneAndDelete({ _id: groupID }, function(err) {
     if (err) console.log(err);
@@ -135,7 +141,7 @@ router.get("/", authCheck, (req, res) => {
   });
 });
 
-router.get("/manage/", (req, res) => {
+router.get("/manage/", authCheck, (req, res) => {
   let groupID = req.query.groupID;
   Group.findById(groupID).then(group => {
     if (group) {

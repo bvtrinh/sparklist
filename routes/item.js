@@ -17,13 +17,17 @@ const sorts = [
 ];
 
 const authCheck = (req, res, next) => {
-  if (!req.session.passport.user) {
+  if (!req.isAuthenticated()) {
     // user not logged in
     res.redirect("/user/login");
   } else {
     // user logged in
     next();
   }
+};
+
+const getUserInfo = req => {
+  return req.isAuthenticated() ? req.session.passport.user : undefined;
 };
 
 router.get("/add", authCheck, async (req, res) => {
@@ -63,9 +67,10 @@ router.post("/process", (req, res) => {
 });
 
 router.get("/search", async (req, res) => {
+  const user = getUserInfo(req);
   Item.find().then(items => {
     res.render("pages/item/search", {
-      user: req.session.passport.user,
+      user,
       items,
       sorts,
       sort_type: null
@@ -76,6 +81,7 @@ router.get("/search", async (req, res) => {
 router.post("/search", async (req, res) => {
   const { keyword, min_price, max_price, sort_type } = req.body;
 
+  const user = getUserInfo(req);
   const filters = {
     title: new RegExp(keyword, "i"),
     current_price: { $lte: max_price, $gte: min_price }
@@ -84,7 +90,7 @@ router.post("/search", async (req, res) => {
     const items = await Item.find(filters).sort(sort_type);
     if (items.length <= 0) throw "No search results found";
     return res.render("pages/item/search", {
-      user: req.session.passport.user,
+      user,
       items,
       keyword,
       min_price,
@@ -99,7 +105,7 @@ router.post("/search", async (req, res) => {
       max_price,
       sort_type,
       sorts,
-      user: req.session.passport.user,
+      user,
       items: null,
       err_msg: err
     });
@@ -109,6 +115,7 @@ router.post("/search", async (req, res) => {
 router.post("/homeSearch", async (req, res) => {
   const { keyword } = req.body;
 
+  const user = getUserInfo(req);
   const filters = {
     title: new RegExp(keyword, "i")
   };
@@ -116,7 +123,7 @@ router.post("/homeSearch", async (req, res) => {
     const items = await Item.find(filters);
     if (items.length <= 0) throw "No search results found";
     return res.render("pages/item/search", {
-      user: req.session.passport.user,
+      user,
       items,
       keyword,
       sort_type: null,
@@ -127,7 +134,7 @@ router.post("/homeSearch", async (req, res) => {
       keyword,
       sort_type: null,
       sorts,
-      user: req.session.passport.user,
+      user,
       items: null,
       err_msg: err
     });
@@ -136,7 +143,7 @@ router.post("/homeSearch", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
   const item = await Item.findById(req.params.id);
-  if (req.session.passport.user) {
+  if (req.isAuthenticated()) {
     const lists = await Wishlist.find({
       owner: req.session.passport.user.email
     });
@@ -147,7 +154,7 @@ router.get("/:id", async (req, res) => {
     });
   } else {
     return res.render("pages/item/viewItem", {
-      user: req.session.passport.user,
+      user: undefined,
       item
     });
   }

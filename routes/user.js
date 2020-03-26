@@ -5,7 +5,7 @@ const passport = require("passport");
 const saltRounds = 10;
 
 const authCheck = (req, res, next) => {
-  if (req.session.passport.user) {
+  if (req.isAuthenticated()) {
     // user logged in
     res.redirect("/");
   } else {

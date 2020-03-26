@@ -10,13 +10,17 @@ const Wishlist = require("../models/Wishlist");
 const Item = require("../models/Item");
 
 const authCheck = (req, res, next) => {
-  if (!req.session.passport.user) {
+  if (!req.isAuthenticated()) {
     // user not logged in
     res.redirect("/user/login");
   } else {
     // user logged in
     next();
   }
+};
+
+const getUserInfo = req => {
+  return req.isAuthenticated() ? req.session.passport.user : undefined;
 };
 
 const sendNotification = async (newInvites, fullname, listID, listname) => {

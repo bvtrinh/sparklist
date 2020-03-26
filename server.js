@@ -78,12 +78,13 @@ app.use("/group", group);
 app.use("/wishlist", wishlist);
 
 app.get("/", (req, res) => {
+  const user = req.isAuthenticated() ? req.session.passport.user : undefined;
   Item.find()
     .sort({ title: 1 })
     .limit(4)
     .then(items => {
       return res.render("pages/home", {
-        user: req.session.passport.user,
+        user,
         items
       });
     })
