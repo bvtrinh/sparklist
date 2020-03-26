@@ -13,7 +13,8 @@ router.post("/login", (req, res, next) => {
 // logout
 router.get("/logout", (req, res) => {
   // handle with passport
-  console.log("logging out");
+  console.log(req.user);
+  console.log(req.session.passport);
   req.logout();
   res.redirect("/");
 });

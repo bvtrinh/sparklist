@@ -24,6 +24,7 @@
     "bootstrap-tokenfield-jquery3": "^0.12.1",
     "cheerio": "^1.0.0-rc.3",
     "connect-flash": "^0.1.1",
+    "connect-mongo": "^3.2.0",
     "cookie-parser": "^1.4.4",
     "dotenv": "^8.2.0",
     "ejs": "^3.0.1",

@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const session = require("express-session");
+const MongoStore = require("connect-mongo")(session);
 const passport = require("passport");
 const passportSetup = require("./config/passport-setup");
 const flash = require("connect-flash");
@@ -28,6 +29,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
+// Connect to Mongo
+mongoose
+  .connect(process.env.MONGOURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true
+  })
+  .then(() => console.log("MongoDB Connected..."))
+  .catch(err => console.log(err));
+
 // Express session
 app.use(
   session({
@@ -35,6 +46,7 @@ app.use(
     maxAge: 24 * 60 * 60 * 1000,
     resave: true,
     saveUninitialized: true,
+    store: new MongoStore({ mongooseConnection: mongoose.connection }),
     secret: process.env.SESSION_SECRET
   })
 );
@@ -45,19 +57,6 @@ app.use(passport.session());
 
 // Connect flash
 app.use(flash());
-
-// DB Config
-const db = process.env.MONGOURI;
-
-// Connect to Mongo
-mongoose
-  .connect(db, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true
-  })
-  .then(() => console.log("MongoDB Connected..."))
-  .catch(err => console.log(err));
 
 // Global Vars
 app.use((req, res, next) => {

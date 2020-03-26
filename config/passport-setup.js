@@ -13,7 +13,13 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser((id, done) => {
   Users.findById(id).then(user => {
-    done(null, user);
+    done(null, {
+      _id: user._id,
+      fname: user.fname,
+      lname: user.lname,
+      email: user.email,
+      date: user.date
+    });
   });
 });
 
