@@ -9,6 +9,7 @@
     <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/ui-lightness/jquery-ui.css"
         rel="stylesheet">
     <link rel="stylesheet" href="/css/search.css">
+    <link rel="stylesheet" href="/css/card.css">
     <title>Search</title>
 </head>
 
@@ -20,7 +21,7 @@
         <form method="POST" action="/item/search">
             <div class="row input-group mb-3">
                 <div class="input-group-prepend">
-                    <select class="form-control" name="category">
+                    <select class="form-control" name="category" onchange="this.form.submit()">
                         <option>All</option>
                         <option>Clothes</option>
                         <option>Headphones</option>
@@ -47,7 +48,7 @@
             </div>
             <div class="row justify-content-between">
                 <div class="mt-4 col-md-3" id="slider-range"></div>
-                <select class="mt-1 form-control col-md-3" name="sort_type">
+                <select class="mt-1 form-control col-md-3" name="sort_type" onchange="this.form.submit()">
                     <% sorts.forEach(sort => { %>
                     <% if (sort_type === sort[0]) { %>
                     <option value="<%=sort[0]%>" selected><%= sort[1] %></option>

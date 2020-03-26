@@ -1,11 +1,13 @@
 const router = require("express").Router();
 const tokenfield = require("bootstrap-tokenfield-jquery3");
+const sendEmail = require("../scripts/email/");
+const path = require("path");
+require("dotenv").config(path.join(__dirname, "../.env"));
 
 // Models
 const User = require("../models/User");
 const Wishlist = require("../models/Wishlist");
 const Item = require("../models/Item");
-
 
 const authCheck = (req, res, next) => {
   if (!req.user) {
@@ -15,6 +17,26 @@ const authCheck = (req, res, next) => {
     // user logged in
     next();
   }
+};
+
+const sendNotification = async (newInvites, fullname, listID, listname) => {
+  // Send email notification to groups
+  let list_link;
+  list_link = `${process.env.DOMAIN_LINK}/wishlist/view/?wishlistID=${listID}`;
+
+  const params = {
+    fullname,
+    listname: listname,
+    list_link
+  };
+
+  await sendEmail({
+    template: "email",
+    params: params,
+    email: newInvites.join(),
+    subject: `${fullname} invited you to see their wishlist`,
+    from: fullname
+  });
 };
 
 router.get("/create", authCheck, (req, res) => {
@@ -39,7 +61,7 @@ router.post("/create", authCheck, (req, res) => {
       user: req.user,
       errors,
       wishlistName,
-      invites,
+      invites: null,
       visibility
     });
   } else {
@@ -78,19 +100,31 @@ router.post("/update/", authCheck, (req, res) => {
   const { wishlistName, sharedUsers, visibility } = req.body;
   let wishlistID = req.query.wishlistID;
 
-  var usersList = sharedUsers.trim().split(",");
+  var usersList = [];
+  if (sharedUsers !== "") {
+    usersList = sharedUsers.trim().split(",");
+  }
 
-  Wishlist.findById(wishlistID).then(wishlist => {
+  Wishlist.findById(wishlistID).then(async wishlist => {
     if (wishlist) {
       if (wishlistName != wishlist.name) {
         wishlist.name = wishlistName;
       }
-
+      var oldSharedUsers = wishlist.sharedUsers;
       wishlist.sharedUsers = [];
 
       usersList.forEach(function(user, index) {
         wishlist.sharedUsers.push(user.trim());
       });
+
+      const fullname = `${req.user.fname} ${req.user.lname}`;
+      var newInvites = usersList.filter(member => {
+        return !oldSharedUsers.includes(member);
+      });
+
+      if (newInvites.length > 0) {
+        sendNotification(newInvites, fullname, wishlistID, wishlist.name);
+      }
 
       if (visibility != undefined && visibility != wishlist.visibility) {
         wishlist.visibility = visibility;
@@ -146,15 +180,46 @@ router.get("/view/", authCheck, (req, res) => {
   const wishlistID = req.query.wishlistID;
 
   Wishlist.findById(wishlistID).then(wishlist => {
-    if(wishlist){
-      Promise.all(wishlist.items.map(item => {
+    if (wishlist) {
+      Promise.all(
+        wishlist.items.map(item => {
           return Item.findById(item).exec();
-      })).then(wishlistItems => {
+        })
+      ).then(wishlistItems => {
         // all found items here
-        res.render("pages/wishlist/viewWishlist", { wishlist, wishlistItems, user: req.user });
-      });    
+        res.render("pages/wishlist/viewWishlist", {
+          wishlist,
+          wishlistItems,
+          user: req.user
+        });
+      });
     }
   });
+});
+
+router.post("/addlist", authCheck, async (req, res) => {
+  const item_id = req.body.id;
+  const list_id = { _id: req.body.list };
+  // Add item to wishlist
+  await Wishlist.updateOne(list_id, { $push: { items: item_id } });
+
+  // Redirect to wishlist view
+  res.redirect(`/wishlist/view/?wishlistID=${req.body.list}`);
+});
+
+router.post("/deleteItem/:wishlistID/:itemID", authCheck, async (req, res) => {
+  let wishlistID = req.params.wishlistID;
+  let itemID = req.params.itemID;
+
+  await Wishlist.findById(wishlistID).then(wishlist => {
+    if (wishlist) {
+      wishlist.items.pull(itemID);
+      wishlist.save();
+    }
+  });
+
+  // Redirect to wishlist view
+  res.redirect(`/wishlist/view/?wishlistID=${wishlistID}`);
 });
 
 module.exports = router;

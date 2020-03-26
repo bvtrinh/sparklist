@@ -8,19 +8,6 @@
   color: white;
 }
 
-.card {
-  width: 15rem;
-}
-
-.card-img-top {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width: 13rem; /* You can set the dimensions to whatever you want */
-  height: 15rem;
-  object-fit: scale-down;
-}
-
 .font-sen {
   font-family: "Sen", sans-serif;
 }

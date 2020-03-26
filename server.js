@@ -5,7 +5,6 @@ const session = require("express-session");
 const passport = require("passport");
 const passportSetup = require("./config/passport-setup");
 const flash = require("connect-flash");
-const sendEmail = require("./scripts/email/index");
 const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
 
@@ -93,23 +92,6 @@ app.get("/", (req, res) => {
     .catch(err => {
       console.log(err);
     });
-});
-
-app.get("/email", async (req, res) => {
-  const toEmail = "tylervtrinh@gmail.com";
-  const params = {
-    email: toEmail,
-    name: "Tyler Trinh"
-  };
-
-  const result = await sendEmail({
-    template: "email",
-    params: params,
-    email: toEmail,
-    subject: "Testing 123"
-  });
-
-  return res.send(result);
 });
 
 console.log("Running on " + process.env.NODE_ENV);
