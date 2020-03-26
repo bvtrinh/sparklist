@@ -1,16 +1,20 @@
 node_modules/
-
 .env
-
 todo.*
 
-# Google vision file
+# Dev Google Vision file
 Vision-test-0d87ab709fc0.json
+
+# Prod Google Vision file
 sparklist2020-270319-39eb0709284b.json
 
 # Docker
 Dockerfile
-docker-compose.yml
+*.yml
+*.yaml
+
+# Kubernetes
+cluster-setup/
 
 # Nginx
 nginx/
