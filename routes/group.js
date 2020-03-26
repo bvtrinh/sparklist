@@ -6,7 +6,7 @@ const User = require("../models/User");
 const Group = require("../models/Group");
 
 const authCheck = (req, res, next) => {
-  if (!req.user) {
+  if (!req.session.passport.user) {
     // user not logged in
     res.redirect("/user/login");
   } else {
@@ -16,7 +16,7 @@ const authCheck = (req, res, next) => {
 };
 
 router.get("/create", (req, res) => {
-  res.render("pages/group/createGroup", { user: req.user });
+  res.render("pages/group/createGroup", { user: req.session.passport.user });
 });
 
 // handle group creation
@@ -42,7 +42,10 @@ router.post("/create", (req, res) => {
   } else {
     // initial validation passed
     // check if user has group with same name
-    Group.find({ admin: req.user.email, name: groupName }).then(group => {
+    Group.find({
+      admin: req.session.passport.user.email,
+      name: groupName
+    }).then(group => {
       if (group.length != 0) {
         // user already has group with entered name -> error
         errors.push({
@@ -50,7 +53,7 @@ router.post("/create", (req, res) => {
             "You already created a group with this name. Please try again with a different name."
         });
         res.render("pages/group/createGroup", {
-          user: req.user,
+          user: req.session.passport.user,
           errors,
           invites,
           visibility
@@ -58,7 +61,7 @@ router.post("/create", (req, res) => {
       } else {
         new Group({
           name: groupName,
-          admin: req.user.email,
+          admin: req.session.passport.user.email,
           visibility: visibility,
           members: invites
         })
@@ -109,19 +112,22 @@ router.post("/delete/", (req, res) => {
 router.get("/", authCheck, (req, res) => {
   // find all groups associated with this user
   Group.find({
-    $or: [{ admin: req.user.email }, { members: req.user.email }]
+    $or: [
+      { admin: req.session.passport.user.email },
+      { members: req.session.passport.user.email }
+    ]
   }).then(groups => {
     if (groups.length == 0) {
       // user does not belong to any groups
       // add some type of message
       res.render("pages/group/viewGroup", {
-        user: req.user,
+        user: req.session.passport.user,
         msg: "You do not have any groups.",
         groups: groups
       });
     } else {
       res.render("pages/group/viewGroup", {
-        user: req.user,
+        user: req.session.passport.user,
         msg: "",
         groups: groups
       });
@@ -133,7 +139,10 @@ router.get("/manage/", (req, res) => {
   let groupID = req.query.groupID;
   Group.findById(groupID).then(group => {
     if (group) {
-      res.render("pages/group/updateGroup", { group, user: req.user });
+      res.render("pages/group/updateGroup", {
+        group,
+        user: req.session.passport.user
+      });
     }
   });
 });

@@ -47,6 +47,9 @@ app.use(
     resave: true,
     saveUninitialized: true,
     store: new MongoStore({ mongooseConnection: mongoose.connection }),
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000
+    },
     secret: process.env.SESSION_SECRET
   })
 );
@@ -79,7 +82,10 @@ app.get("/", (req, res) => {
     .sort({ title: 1 })
     .limit(4)
     .then(items => {
-      return res.render("pages/home", { user: req.user, items });
+      return res.render("pages/home", {
+        user: req.session.passport.user,
+        items
+      });
     })
     .catch(err => {
       console.log(err);

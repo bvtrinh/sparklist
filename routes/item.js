@@ -17,7 +17,7 @@ const sorts = [
 ];
 
 const authCheck = (req, res, next) => {
-  if (!req.user) {
+  if (!req.session.passport.user) {
     // user not logged in
     res.redirect("/user/login");
   } else {
@@ -27,8 +27,8 @@ const authCheck = (req, res, next) => {
 };
 
 router.get("/add", authCheck, async (req, res) => {
-  const lists = await Wishlist.find({ owner: req.user.email });
-  res.render("pages/item/addItem", { user: req.user, lists });
+  const lists = await Wishlist.find({ owner: req.session.passport.user.email });
+  res.render("pages/item/addItem", { user: req.session.passport.user, lists });
 });
 
 router.post("/process", (req, res) => {
@@ -65,7 +65,7 @@ router.post("/process", (req, res) => {
 router.get("/search", async (req, res) => {
   Item.find().then(items => {
     res.render("pages/item/search", {
-      user: req.user,
+      user: req.session.passport.user,
       items,
       sorts,
       sort_type: null
@@ -84,7 +84,7 @@ router.post("/search", async (req, res) => {
     const items = await Item.find(filters).sort(sort_type);
     if (items.length <= 0) throw "No search results found";
     return res.render("pages/item/search", {
-      user: req.user,
+      user: req.session.passport.user,
       items,
       keyword,
       min_price,
@@ -99,7 +99,7 @@ router.post("/search", async (req, res) => {
       max_price,
       sort_type,
       sorts,
-      user: req.user,
+      user: req.session.passport.user,
       items: null,
       err_msg: err
     });
@@ -116,7 +116,7 @@ router.post("/homeSearch", async (req, res) => {
     const items = await Item.find(filters);
     if (items.length <= 0) throw "No search results found";
     return res.render("pages/item/search", {
-      user: req.user,
+      user: req.session.passport.user,
       items,
       keyword,
       sort_type: null,
@@ -127,21 +127,29 @@ router.post("/homeSearch", async (req, res) => {
       keyword,
       sort_type: null,
       sorts,
-      user: req.user,
+      user: req.session.passport.user,
       items: null,
       err_msg: err
     });
   }
 });
 
-
 router.get("/:id", async (req, res) => {
   const item = await Item.findById(req.params.id);
-  if (req.user) {
-    const lists = await Wishlist.find({ owner: req.user.email });
-    return res.render("pages/item/viewItem", { user: req.user, item, lists });
+  if (req.session.passport.user) {
+    const lists = await Wishlist.find({
+      owner: req.session.passport.user.email
+    });
+    return res.render("pages/item/viewItem", {
+      user: req.session.passport.user,
+      item,
+      lists
+    });
   } else {
-    return res.render("pages/item/viewItem", { user: req.user, item });
+    return res.render("pages/item/viewItem", {
+      user: req.session.passport.user,
+      item
+    });
   }
 });
 
