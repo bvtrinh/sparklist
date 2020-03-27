@@ -5,7 +5,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <%- include ('../../partials/header.ejs') %>
-  <link rel="stylesheet" type="text/css" href="/css/login.css">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Profile</title>
 </head>
@@ -14,8 +13,9 @@
   <%- include ('../../partials/navbar.ejs') %>
   <div class="container">
 
-    <h1 class="card-title mt-5 mb-3">Profile</h1>
-    <a class="btn btn-primary mb-3" href="#">Edit</a>
+    <h1 class="mt-5 mb-3">Profile</h1>
+    <a class="btn btn-primary" href="/user/update">Edit</a>
+    <hr class="my-4">
     <div class="card h-100 pt-3 shadow">
       <div class="card-body">
         <p>Name: <%= user.fname %> <%= user.lname %></p>

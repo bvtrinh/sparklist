@@ -4,7 +4,7 @@ const passport = require("passport");
 
 const saltRounds = 10;
 
-const authCheck = (req, res, next) => {
+const loggedIn = (req, res, next) => {
   if (req.isAuthenticated()) {
     // user logged in
     res.redirect("/");
@@ -13,19 +13,30 @@ const authCheck = (req, res, next) => {
     next();
   }
 };
+
+const authCheck = (req, res, next) => {
+  if (!req.isAuthenticated()) {
+    // user not logged in
+    res.redirect("/user/login");
+  } else {
+    // user logged in
+    next();
+  }
+};
+
 // User Model
 const User = require("../models/User");
 
-router.get("/login", authCheck, (req, res) => {
+router.get("/login", loggedIn, (req, res) => {
   res.render("pages/user/login");
 });
 
-router.get("/register", authCheck, (req, res) => {
+router.get("/register", loggedIn, (req, res) => {
   res.render("pages/user/register");
 });
 
 // handle registeration
-router.post("/register", (req, res) => {
+router.post("/register", loggedIn, (req, res) => {
   const { fname, lname, email, password, passwordConfirm } = req.body;
   let errors = [];
 
@@ -94,6 +105,80 @@ router.post("/register", (req, res) => {
       }
     });
   }
+});
+
+router.get("/profile", authCheck, (req, res) => {
+  res.render("pages/user/profile", { user: req.session.passport.user });
+});
+
+router.get("/update", authCheck, (req, res) => {
+  res.render("pages/user/updateProfile", { user: req.session.passport.user });
+});
+
+router.post("/update", authCheck, (req, res) => {
+  const { fname, lname, email } = req.body;
+  let userID = req.query.userID;
+
+  User.findById(userID).then(user => {
+    if (user) {
+      if (fname != user.fname) {
+        user.fname = fname;
+      }
+
+      if (lname != user.lname) {
+        user.lname = lname;
+      }
+
+      if (email != user.email) {
+        user.email = email;
+      }
+      user.save();
+    }
+    res.redirect("/user/profile");
+  });
+});
+
+router.get("/updatePassword", authCheck, (req, res) => {
+  res.render("pages/user/updatePassword", { user: req.session.passport.user });
+});
+
+router.post("/updatePassword", authCheck, (req, res) => {
+  const { oldPassword, password, confirmPassword } = req.body;
+  let userID = req.query.userID;
+  let errors = [];
+
+  User.findById(userID).then(user => {
+    if (user) {
+      // Check old password matches
+      bcrypt.compare(oldPassword, user.password, function(err, result) {
+        if (result == false) {
+          errors.push({ msg: "Old Password is incorrect." });
+        }
+        // Check new passwords match
+        if (password !== confirmPassword) {
+          errors.push({ msg: "New passwords do not match." });
+        }
+
+        // Check new password length
+        if (password.length < 6) {
+          errors.push({ msg: "Password should be atleast 6 characters long." });
+        }
+
+        if (errors.length > 0) {
+          res.render("pages/user/updatePassword", {
+            errors,
+            user: req.session.passport.user
+          });
+        } else {
+          bcrypt.hash(password, saltRounds, function(err, hash) {
+            user.password = hash;
+            user.save();
+            res.redirect("/user/profile");
+          });
+        }
+      });
+    }
+  });
 });
 
 module.exports = router;

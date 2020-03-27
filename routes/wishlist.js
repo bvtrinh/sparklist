@@ -7,6 +7,7 @@ require("dotenv").config(path.join(__dirname, "../.env"));
 // Models
 const User = require("../models/User");
 const Wishlist = require("../models/Wishlist");
+const Group = require("../models/Group");
 const Item = require("../models/Item");
 
 const authCheck = (req, res, next) => {
@@ -21,6 +22,61 @@ const authCheck = (req, res, next) => {
 
 const getUserInfo = req => {
   return req.isAuthenticated() ? req.session.passport.user : undefined;
+};
+
+const ownerCheck = async (req, res, next) => {
+  const results = await Wishlist.findOne({
+    $and: [
+      { owner: req.session.passport.user.email },
+      { _id: req.query.wishlistID || req.params.wishlistID }
+    ]
+  });
+
+  if (results) {
+    next();
+  } else {
+    // Current user is not the owner of the wishlist redirect to error page
+    res.redirect("/error");
+  }
+};
+
+// A user should be able to view a wishlist if they are on the sharedlist of
+// the wishlist, the owner, or part of the group the wishlist is attached to
+const accessCheck = async (req, res, next) => {
+  const shared = await Wishlist.findOne({
+    $and: [
+      { _id: req.query.wishlistID || req.params.wishlistID },
+      { sharedUsers: req.session.passport.user.email }
+    ]
+  });
+
+  const owner = await Wishlist.findOne({
+    $and: [
+      { owner: req.session.passport.user.email },
+      { _id: req.query.wishlistID || req.params.wishlistID }
+    ]
+  });
+
+  const group = await Wishlist.findOne(
+    {
+      _id: req.query.wishlistID || req.params.wishlistID
+    },
+    { groups: 1 }
+  ).populate({
+    path: "groups",
+    match: {
+      $or: [
+        { members: req.session.passport.user.email },
+        { admin: req.session.passport.user.email }
+      ]
+    }
+  });
+
+  if (shared || owner || group) {
+    next();
+  } else {
+    res.redirect("/error");
+  }
 };
 
 const sendNotification = async (newInvites, fullname, listID, listname) => {
@@ -103,7 +159,7 @@ router.post("/create", authCheck, (req, res) => {
   }
 });
 
-router.post("/update/", authCheck, (req, res) => {
+router.post("/update/", authCheck, ownerCheck, (req, res) => {
   const { wishlistName, sharedUsers, visibility } = req.body;
   let wishlistID = req.query.wishlistID;
 
@@ -143,12 +199,49 @@ router.post("/update/", authCheck, (req, res) => {
   res.redirect("/wishlist/manage/?wishlistID=" + wishlistID);
 });
 
-router.post("/delete/", authCheck, (req, res) => {
+router.post("/delete/", authCheck, ownerCheck, async (req, res) => {
   let wishlistID = req.query.wishlistID;
-  Wishlist.findOneAndDelete({ _id: wishlistID }, function(err) {
-    if (err) console.log(err);
+  try {
+    // Get the group IDs that are related to this group
+    const { groups } = await Wishlist.findById(wishlistID, { groups: 1 });
+
+    // Remove the wishlist id from the groups
+    await Group.updateMany(
+      { _id: { $in: groups } },
+      { $pull: { wishlists: wishlistID } }
+    );
+
+    await Wishlist.findOneAndDelete({ _id: wishlistID });
     res.redirect("/wishlist");
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// AJAX called used to fill the modal on the view /group/viewGroup
+router.post("/getlists", async (req, res) => {
+  const groupID = req.body.groupID;
+  const results = await Wishlist.find({
+    owner: req.session.passport.user.email
   });
+  const idObj = await Wishlist.find(
+    { owner: req.session.passport.user.email },
+    { _id: 1 }
+  );
+  var ids = [];
+  idObj.forEach(ele => {
+    ids.push(ele._id);
+  });
+  const grps = await Group.findById(groupID, { wishlists: 1 });
+
+  // Get the current list
+  var currentList = ids
+    .filter(id => {
+      return grps.wishlists.includes(id);
+    })
+    .join();
+
+  return res.json({ results, currentList });
 });
 
 router.get("/", authCheck, (req, res) => {
@@ -177,7 +270,7 @@ router.get("/", authCheck, (req, res) => {
   });
 });
 
-router.get("/manage/", authCheck, (req, res) => {
+router.get("/manage/", authCheck, ownerCheck, (req, res) => {
   let wishlistID = req.query.wishlistID;
   Wishlist.findById(wishlistID).then(wishlist => {
     if (wishlist) {
@@ -189,8 +282,13 @@ router.get("/manage/", authCheck, (req, res) => {
   });
 });
 
-router.get("/view/", authCheck, (req, res) => {
+router.get("/view/", authCheck, accessCheck, (req, res) => {
   const wishlistID = req.query.wishlistID;
+
+  if (req.session.errors) {
+    var errors = req.session.errors;
+    delete req.session.errors;
+  }
 
   Wishlist.findById(wishlistID).then(wishlist => {
     if (wishlist) {
@@ -201,6 +299,7 @@ router.get("/view/", authCheck, (req, res) => {
       ).then(wishlistItems => {
         // all found items here
         res.render("pages/wishlist/viewWishlist", {
+          errors,
           wishlist,
           wishlistItems,
           user: req.session.passport.user
@@ -214,25 +313,37 @@ router.post("/addlist", authCheck, async (req, res) => {
   const item_id = req.body.id;
   const list_id = { _id: req.body.list };
   // Add item to wishlist
-  await Wishlist.updateOne(list_id, { $push: { items: item_id } });
-
-  // Redirect to wishlist view
-  res.redirect(`/wishlist/view/?wishlistID=${req.body.list}`);
-});
-
-router.post("/deleteItem/:wishlistID/:itemID", authCheck, async (req, res) => {
-  let wishlistID = req.params.wishlistID;
-  let itemID = req.params.itemID;
-
-  await Wishlist.findById(wishlistID).then(wishlist => {
-    if (wishlist) {
-      wishlist.items.pull(itemID);
-      wishlist.save();
-    }
+  const result = await Wishlist.updateOne(list_id, {
+    $addToSet: { items: item_id }
   });
+  var errors = [];
+  if (result.nModified <= 0) {
+    errors.push({ msg: "You've add this item to this wishlist already" });
+    req.session.errors = errors;
+  }
 
   // Redirect to wishlist view
-  res.redirect(`/wishlist/view/?wishlistID=${wishlistID}`);
+  return res.redirect(`/wishlist/view/?wishlistID=${req.body.list}`);
 });
+
+router.post(
+  "/deleteItem/:wishlistID/:itemID",
+  authCheck,
+  ownerCheck,
+  async (req, res) => {
+    let wishlistID = req.params.wishlistID;
+    let itemID = req.params.itemID;
+
+    await Wishlist.findById(wishlistID).then(wishlist => {
+      if (wishlist) {
+        wishlist.items.pull(itemID);
+        wishlist.save();
+      }
+    });
+
+    // Redirect to wishlist view
+    res.redirect(`/wishlist/view/?wishlistID=${wishlistID}`);
+  }
+);
 
 module.exports = router;

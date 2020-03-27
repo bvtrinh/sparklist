@@ -16,7 +16,6 @@ const Item = require("./models/Item");
 const items = require("./routes/item");
 const users = require("./routes/user");
 const auth = require("./routes/auth");
-const profile = require("./routes/profile");
 const group = require("./routes/group");
 const wishlist = require("./routes/wishlist");
 
@@ -73,9 +72,18 @@ app.use((req, res, next) => {
 app.use("/item", items);
 app.use("/user", users);
 app.use("/auth", auth);
-app.use("/profile", profile);
 app.use("/group", group);
 app.use("/wishlist", wishlist);
+
+const authCheck = (req, res, next) => {
+  if (!req.isAuthenticated()) {
+    // user not logged in
+    res.redirect("/user/login");
+  } else {
+    // user logged in
+    next();
+  }
+};
 
 app.get("/", (req, res) => {
   const user = req.isAuthenticated() ? req.session.passport.user : undefined;
@@ -91,6 +99,10 @@ app.get("/", (req, res) => {
     .catch(err => {
       console.log(err);
     });
+});
+
+app.get("/error", authCheck, (req, res) => {
+  return res.render("pages/error", { user: req.session.passport.user });
 });
 
 console.log("Running on " + process.env.NODE_ENV);

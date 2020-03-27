@@ -22,6 +22,7 @@
     "bcrypt": "^4.0.0",
     "bcryptjs": "^2.4.3",
     "bootstrap-tokenfield-jquery3": "^0.12.1",
+    "chalk": "^3.0.0",
     "cheerio": "^1.0.0-rc.3",
     "connect-flash": "^0.1.1",
     "connect-mongo": "^3.2.0",
@@ -38,6 +39,7 @@
     "passport": "^0.4.1",
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
-    "price-finder": "^5.0.2"
+    "price-finder": "^5.0.2",
+    "puppeteer": "^2.1.1"
   }
 }
