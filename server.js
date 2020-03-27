@@ -74,6 +74,16 @@ app.use("/auth", auth);
 app.use("/group", group);
 app.use("/wishlist", wishlist);
 
+const authCheck = (req, res, next) => {
+  if (!req.user) {
+    // user not logged in
+    res.redirect("/user/login");
+  } else {
+    // user logged in
+    next();
+  }
+};
+
 app.get("/", (req, res) => {
   Item.find()
     .sort({ title: 1 })
@@ -84,6 +94,10 @@ app.get("/", (req, res) => {
     .catch(err => {
       console.log(err);
     });
+});
+
+app.get("/error", authCheck, (req, res) => {
+  return res.render("pages/error", { user: req.user });
 });
 
 console.log("Running on " + process.env.NODE_ENV);
