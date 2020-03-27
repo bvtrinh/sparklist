@@ -148,7 +148,6 @@ router.post("/scrape", async (req, res) => {
 
   try {
     const itemName = req.body.itemName;
-    console.log(itemName);
 
     // open the headless browser
     var browser = await puppeteer.launch({ headless: true });
@@ -161,46 +160,56 @@ router.post("/scrape", async (req, res) => {
     await page.type('input.lst', itemName);
     page.keyboard.press('Enter');
     await page.waitForSelector('a.VZTCjd.REX1ub.translate-content');
-    const links = await page.$$('a.VZTCjd.REX1ub.translate-content');
-    await links[0].click();
-
-    // wait for page to be loaded
-    await page.waitForNavigation({
-        waitUntil: 'domcontentloaded'
-    }) 
-
-    await page.waitForSelector('span.BvQan.sh-t__title-pdp.sh-t__title.translate-content');
-
+  
     // scrape info from page
-    var item = await page.evaluate(() => {
-      item = {
-          _id: 0,
-          title: document.querySelector(`span.BvQan.sh-t__title-pdp.sh-t__title.translate-content`).innerHTML.trim(),
-          current_price: document.querySelector(`span.NVfoXb > b`).innerHTML.trim(),
-          url: "google.com" + document.querySelector(`a.txYPsb.mpeCOc.shntl`).getAttribute("href"),
-          img_url:  document.querySelector(`img.sh-div__image.sh-div__current`).getAttribute("src")
+    var itemLinks = await page.evaluate(() => {
+
+      var links = document.querySelectorAll(`a.VZTCjd.REX1ub.translate-content`);
+
+      let itemLinks = [];
+      var j = 0;
+      for (var i = 0; i < links.length; i++) {
+        if(links[i].getAttribute("href").includes("shopping")){
+          itemLinks[j] = "https://www.google.com" + links[i].getAttribute("href");
+          j++;
+        }
       }
 
-      return item;
+      return itemLinks;
     });
 
-    // get actual link to item
-    await page.goto("https://www." + item.url);
-    var itemurl = await page.url();
-    item.url = itemurl;
+    let items = [];
+    for (var i = 0; i < itemLinks.length; i++) {
 
-    item.current_price = item.current_price.replace('$','');
+      await page.goto(itemLinks[i]);
+      await page.waitForSelector('span.BvQan.sh-t__title-pdp.sh-t__title.translate-content');
 
-    console.log(item);
+      items[i] = await page.evaluate((i) => {
+        item = {
+          title: document.querySelector(`span.BvQan.sh-t__title-pdp.sh-t__title.translate-content`).innerHTML.trim(),
+          current_price: document.querySelector(`span.NVfoXb > b`).innerHTML.trim().replace('$',''),
+          url: "google.com" + document.querySelector(`a.txYPsb.mpeCOc.shntl`).getAttribute("href"),
+          img_url:  document.querySelector(`img.sh-div__image.sh-div__current`).getAttribute("src")
+        }
+
+        return item;
+      });
+    }
+    
+    for (var i = 0; i < items.length; i++) {
+      // get actual link to item
+      await page.goto("https://www." + items[i].url);
+      items[i].url = await page.url();
+    }
 
     await browser.close();
     console.log(success("Browser Closed"));
 
     if (req.user) {
       const lists = await Wishlist.find({ owner: req.user.email });
-      return res.render("pages/item/viewItem", { user: req.user, item, lists });
+      return res.render("pages/item/searchResults", { user: req.user, items, lists });
     } else {
-      return res.render("pages/item/viewItem", { user: req.user, item });
+      return res.render("pages/item/searchResults", { user: req.user, items });
     }
 
   } catch (err) {
@@ -209,8 +218,6 @@ router.post("/scrape", async (req, res) => {
     await browser.close();
     console.log(error("Browser Closed"));
   }
-  
-  console.log("done");
 });
 
 router.get("/:id", async (req, res) => {

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <%- include ('../../partials/header.ejs') %>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/ui-lightness/jquery-ui.css"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/css/search.css">
+    <link rel="stylesheet" href="/css/card.css">
+    <title>Search</title>
+</head>
+
+<body>
+    <%- include ('../../partials/navbar.ejs') %>
+    <div class="container mb-5">
+        <h2 class='my-4'>Search</h2>
+        <hr class="my-4">
+
+        <% if (items) { %> <div align="center" class="card-deck row row-cols-lg-4 row-cols-md-2">
+
+            <% items.forEach(function(item) { %>
+            <div class="col mb-5">
+                <div class="card h-100 pt-3 shadow">
+                    <img src="<%= item.img_url %>" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title"><%= item.title %></a></h5>
+                        <p class="card-text">$<%= item.current_price %></p>
+                    </div>
+                </div>
+            </div>
+            <% }); %>
+
+        </div> <!-- END CARD DECK -->
+        <% } else { %>
+        <h3><%= err_msg %></h3>
+        <% } %>
+    </div> <!-- END CONTAINER -->
+    <%- include ('../../partials/endBody.ejs') %>
+    <script src="/js/slider.js"></script>
+</body>
+
+</html>
