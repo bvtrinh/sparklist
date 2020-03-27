@@ -22,32 +22,56 @@
                 Wishlist</button></a>
         <hr class="my-4">
 
-        <% if (wishlists) { %>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Members</th>
-                    <th scope="col">Visibility</th>
-                    <th scope="col">Edit</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% wishlists.forEach(wishlist => { %>
-                <tr>
-                    <td><%= wishlist._id %></td>
-                    <td><a href="/wishlist/view/?wishlistID=<%= wishlist._id %>"><%= wishlist.name %></a></td>
-                    <td><%= wishlist.sharedUsers %></td>
-                    <td><%= wishlist.visibility %></td>
-                    <td><a class="btn btn-info" href="/wishlist/manage/?wishlistID=<%= wishlist._id %>"><i
-                                class="fas fa-edit"></i></a></td>
-                </tr>
-                <% }); %>
-            </tbody>
-        </table>
+        <% if (myLists.length > 0) { %>
+        <h2>My Wishlists</h2>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Members</th>
+                        <th scope="col">Visibility</th>
+                        <th scope="col">Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% myLists.forEach(wishlist => { %>
+                    <tr>
+                        <td><a href="/wishlist/view/?wishlistID=<%= wishlist._id %>"><%= wishlist.name %></a></td>
+                        <td><%= wishlist.sharedUsers %></td>
+                        <td><%= wishlist.visibility %></td>
+                        <td><a class="btn btn-info" href="/wishlist/manage/?wishlistID=<%= wishlist._id %>"><i
+                                    class="fas fa-edit"></i></a></td>
+                    </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
         <% } %>
 
+        <% if (sharedLists.length > 0) { %>
+        <h2 class="mt-5">Shared Lists</h2>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Owner</th>
+                        <th scope="col">Visibility</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% sharedLists.forEach(wishlist => { %>
+                    <tr>
+                        <td><a href="/wishlist/view/?wishlistID=<%= wishlist._id %>"><%= wishlist.name %></a></td>
+                        <td><%= wishlist.owner %></td>
+                        <td><%= wishlist.visibility %></td>
+                    </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+        <% } %>
     </div>
 
     <%- include ('../../partials/endBody.ejs') %>

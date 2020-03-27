@@ -39,13 +39,13 @@
                     <div class="form-check form-check-inline">
                         <label class="form-check-label">
                             <input type="radio" class="form-check-input" name="visibility" value="public"
-                                <%= group.visibility && group.visibility === "public" ? "checked" : "" %>>Public
+                                <%= group.visibility === "public" ? "checked" : "" %>>Public
                         </label>
                     </div>
                     <div class="form-check form-check-inline">
                         <label class="form-check-label">
                             <input type="radio" class="form-check-input" name="visibility" value="private"
-                                <%= group.visibility && group.visibility === "private" ? "checked" : "" %>>Private
+                                <%= group.visibility === "private" ? "checked" : "" %>>Private
                         </label>
                     </div>
                 </div>
