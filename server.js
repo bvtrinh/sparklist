@@ -15,7 +15,6 @@ const Item = require("./models/Item");
 const items = require("./routes/item");
 const users = require("./routes/user");
 const auth = require("./routes/auth");
-const profile = require("./routes/profile");
 const group = require("./routes/group");
 const wishlist = require("./routes/wishlist");
 

@@ -10,7 +10,6 @@ const authCheck = (req, res, next) => {
     res.redirect("/");
   } else {
     // user not logged in
-    console.log("not logged in");
     next();
   }
 };
@@ -24,7 +23,6 @@ const authCheck__ = (req, res, next) => {
     next();
   }
 };
-
 
 // User Model
 const User = require("../models/User");
@@ -138,7 +136,6 @@ router.post("/update", authCheck__, (req, res) => {
     }
     res.redirect("/user/profile");
   });
-
 });
 
 router.get("/updatePassword", authCheck__, (req, res) => {
@@ -151,24 +148,23 @@ router.post("/updatePassword", authCheck__, (req, res) => {
   let errors = [];
 
   User.findById(userID).then(user => {
-    if (user) {    
-
+    if (user) {
       // Check old password matches
       bcrypt.compare(oldPassword, user.password, function(err, result) {
-        if(result == false) {
-          errors.push({msg: "Old Password is incorrect."})
+        if (result == false) {
+          errors.push({ msg: "Old Password is incorrect." });
         }
         // Check new passwords match
         if (password !== confirmPassword) {
-          errors.push({msg: "New passwords do not match."});
+          errors.push({ msg: "New passwords do not match." });
         }
 
         // Check new password length
-        if(password.length < 6) {
+        if (password.length < 6) {
           errors.push({ msg: "Password should be atleast 6 characters long." });
         }
 
-        if(errors.length > 0) {
+        if (errors.length > 0) {
           res.render("pages/user/updatePassword", { errors, user: req.user });
         } else {
           bcrypt.hash(password, saltRounds, function(err, hash) {
@@ -177,10 +173,9 @@ router.post("/updatePassword", authCheck__, (req, res) => {
             res.redirect("/user/profile");
           });
         }
-      });      
+      });
     }
   });
-
 });
 
 module.exports = router;
