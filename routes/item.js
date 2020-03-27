@@ -7,6 +7,12 @@ const priceFind = new PriceFinder();
 const Item = require("../models/Item");
 const Wishlist = require("../models/Wishlist");
 
+const puppeteer = require("puppeteer");
+const chalk = require("chalk");
+
+const error = chalk.bold.red;
+const success = chalk.keyword("green");
+
 // Dropdown for sorting type
 const sorts = [
   ["count", "Popular"],
@@ -134,6 +140,78 @@ router.post("/homeSearch", async (req, res) => {
   }
 });
 
+router.get("/find", (req, res) => {
+  res.render("pages/item/findItem");
+});
+
+router.post("/scrape", async (req, res) => {
+
+  try {
+    const itemName = req.body.itemName;
+    console.log(itemName);
+
+    // open the headless browser
+    var browser = await puppeteer.launch({ headless: true });
+
+    // open a new page
+    var page = await browser.newPage();
+
+    // enter url in page
+    await page.goto(`https://shopping.google.com/`);
+    await page.type('input.lst', itemName);
+    page.keyboard.press('Enter');
+    await page.waitForSelector('a.VZTCjd.REX1ub.translate-content');
+    const links = await page.$$('a.VZTCjd.REX1ub.translate-content');
+    await links[0].click();
+
+    // wait for page to be loaded
+    await page.waitForNavigation({
+        waitUntil: 'domcontentloaded'
+    }) 
+
+    await page.waitForSelector('span.BvQan.sh-t__title-pdp.sh-t__title.translate-content');
+
+    // scrape info from page
+    var item = await page.evaluate(() => {
+      item = {
+          _id: 0,
+          title: document.querySelector(`span.BvQan.sh-t__title-pdp.sh-t__title.translate-content`).innerHTML.trim(),
+          current_price: document.querySelector(`span.NVfoXb > b`).innerHTML.trim(),
+          url: "google.com" + document.querySelector(`a.txYPsb.mpeCOc.shntl`).getAttribute("href"),
+          img_url:  document.querySelector(`img.sh-div__image.sh-div__current`).getAttribute("src")
+      }
+
+      return item;
+    });
+
+    // get actual link to item
+    await page.goto("https://www." + item.url);
+    var itemurl = await page.url();
+    item.url = itemurl;
+
+    item.current_price = item.current_price.replace('$','');
+
+    console.log(item);
+
+    await browser.close();
+    console.log(success("Browser Closed"));
+
+    if (req.user) {
+      const lists = await Wishlist.find({ owner: req.user.email });
+      return res.render("pages/item/viewItem", { user: req.user, item, lists });
+    } else {
+      return res.render("pages/item/viewItem", { user: req.user, item });
+    }
+
+  } catch (err) {
+    // Catch and display errors
+    console.log(error(err));
+    await browser.close();
+    console.log(error("Browser Closed"));
+  }
+  
+  console.log("done");
+});
 
 router.get("/:id", async (req, res) => {
   const item = await Item.findById(req.params.id);
