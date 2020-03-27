@@ -144,6 +144,12 @@ router.post("/delete/", authCheck, (req, res) => {
   });
 });
 
+// AJAX called used to fill the modal on the view /group/viewGroup
+router.post("/getlists", async (req, res) => {
+  const results = await Wishlist.find({ owner: req.user.email });
+  res.json({ results });
+});
+
 router.get("/", authCheck, (req, res) => {
   // find all wishlists associated with this user
   Wishlist.find({
