@@ -175,8 +175,6 @@ async function scrapeAmazon ( url ) {
 
 async function scrapeGoogleShop ( itemName ) {
   try {
-    // const itemName = req.body.itemName;
-
     // open the headless browser
     var browser = await puppeteer.launch({ headless: true });
 
@@ -185,40 +183,23 @@ async function scrapeGoogleShop ( itemName ) {
 
     // enter url in page
     await page.goto(`https://shopping.google.com/`);
-    await page.type("input.lst", itemName);
-    page.keyboard.press("Enter");
-    await page.waitForSelector("a.VZTCjd.REX1ub.translate-content");
-    const links = await page.$$("a.VZTCjd.REX1ub.translate-content");
-    await links[0].click();
-
-    // wait for page to be loaded
-    await page.waitForNavigation({
-      waitUntil: "domcontentloaded"
-    });
-
-    await page.waitForSelector(
-      "span.BvQan.sh-t__title-pdp.sh-t__title.translate-content"
-    );
+    await page.type('input.lst', itemName);
+    page.keyboard.press('Enter');
+    await page.waitForSelector('a.VZTCjd.REX1ub.translate-content');
 
     // scrape info from page
-    var item = await page.evaluate(() => {
-      item = {
-        _id: 0,
-        title: document
-          .querySelector(
-            `span.BvQan.sh-t__title-pdp.sh-t__title.translate-content`
-          )
-          .innerHTML.trim(),
-        current_price: document
-          .querySelector(`span.NVfoXb > b`)
-          .innerHTML.trim(),
-        url:
-          "google.com" +
-          document.querySelector(`a.txYPsb.mpeCOc.shntl`).getAttribute("href"),
-        img_url: document
-          .querySelector(`img.sh-div__image.sh-div__current`)
-          .getAttribute("src")
-      };
+    var itemLinks = await page.evaluate(() => {
+
+      var links = document.querySelectorAll(`a.VZTCjd.REX1ub.translate-content`);
+
+      let itemLinks = [];
+      var j = 0;
+      for (var i = 0; i < links.length; i++) {
+        if(links[i].getAttribute("href").includes("shopping")){
+          itemLinks[j] = "https://www.google.com" + links[i].getAttribute("href");
+          j++;
+        }
+      }
 
       return itemLinks;
     });
@@ -231,10 +212,22 @@ async function scrapeGoogleShop ( itemName ) {
 
       items[i] = await page.evaluate((i) => {
         item = {
-          title: document.querySelector(`span.BvQan.sh-t__title-pdp.sh-t__title.translate-content`).innerHTML.trim(),
-          current_price: document.querySelector(`span.NVfoXb > b`).innerHTML.trim().replace('$',''),
-          url: "google.com" + document.querySelector(`a.txYPsb.mpeCOc.shntl`).getAttribute("href"),
-          img_url:  document.querySelector(`img.sh-div__image.sh-div__current`).getAttribute("src")
+          title: document
+            .querySelector(
+              `span.BvQan.sh-t__title-pdp.sh-t__title.translate-content`
+            )
+            .innerHTML.trim(),
+          current_price: document
+            .querySelector(
+              `span.NVfoXb > b`
+            )
+            .innerHTML.trim().replace('$',''),
+          url: 
+            "google.com" + 
+            document.querySelector(`a.txYPsb.mpeCOc.shntl`).getAttribute("href"),
+          img_url:  document
+            .querySelector(`img.sh-div__image.sh-div__current`)
+            .getAttribute("src")
         }
 
         return item;
@@ -250,27 +243,56 @@ async function scrapeGoogleShop ( itemName ) {
     await browser.close();
     console.log(success("Browser Closed"));
 
-    if (req.session.passport.user) {
-      const lists = await Wishlist.find({
-        owner: req.session.passport.user.email
-      });
-      return res.render("pages/item/viewItem", {
-        user: req.session.passport.user,
-        items,
-        lists
-      });
-    } else {
-      return res.render("pages/item/viewItem", {
-        user: req.session.passport.user,
-        items
-      });
-    }
+    return items;
+    
   } catch (err) {
     // Catch and display errors
     console.log(error(err));
     await browser.close();
     console.log(error("Browser Closed"));
   }
+};
+
+router.post("/find", async (req, res) => {
+  const searchQuery = req.body.searchQuery;
+
+  // check if the search query is a url
+  // simple check for now
+  if( searchQuery.includes("http") || searchQuery.includes("www") || searchQuery.includes(".com")) {
+    // url -> need to scrap title
+    console.log("searchQuery is a URL");
+
+    // check if url is for amazon item
+    if( searchQuery.includes("amazon.com")){
+      // use price finder to get item info
+      var item = await scrapeAmazon(searchQuery);
+      var items = await scrapeGoogleShop(item.title);
+      items.push(item);
+    }
+  } else {
+    // string -> scrape google shopping
+    console.log("searchQuery is a product title");
+    var items = await scrapeGoogleShop(searchQuery);
+  }
+
+
+  if (req.session.passport.user) {
+    const lists = await Wishlist.find({
+      owner: req.session.passport.user.email
+    });
+    return res.render("pages/item/searchResults", {
+      user: req.session.passport.user,
+      items,
+      lists
+    });
+  } else {
+    return res.render("pages/item/searchResults", {
+      user: req.session.passport.user,
+      items
+    });
+  }
+  
+
 });
 
 router.get("/:id", async (req, res) => {
