@@ -235,6 +235,41 @@ async function scrapeGoogleShop ( itemName ) {
     console.log(error("Browser Closed"));
   }
 }
+
+
+router.post("/find", async (req, res) => {
+  const searchQuery = req.body.searchQuery;
+
+  // check if the search query is a url
+  // simple check for now
+  if( searchQuery.includes('http') || searchQuery.includes('www') || searchQuery.includes('.com')) {
+    // url -> need to scrap title
+    console.log("searchQuery is a URL");
+    // check if url is for amazon item
+    if( searchQuery.includes('amazon.com')){
+      // use price finder to get item info
+      console.log("searchQuery is an Amazon URL");
+      var item = await scrapeAmazon(searchQuery);
+      // console.log(item);
+      res.send(item);
+    }
+  } else {
+    // string -> scrape google shopping
+    console.log("searchQuery is a product title");
+    var items = await scrapeGoogleShop(searchQuery);
+    res.send(items);
+  }
+
+  // if (req.user) {
+  //   const lists = await Wishlist.find({ owner: req.user.email });
+  //   return res.render("pages/item/searchResults", { user: req.user, items, lists });
+  // } else {
+  //   return res.render("pages/item/searchResults", { user: req.user, items });
+  // }
+  
+
+});
+
 router.post("/scrape", async (req, res) => {
 
   try {
