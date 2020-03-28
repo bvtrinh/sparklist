@@ -2,6 +2,7 @@ const router = require("express").Router();
 const labeler = require("../scripts/vision/labeling");
 const PriceFinder = require("price-finder");
 const scrape = require("../scripts/spider-pictures");
+const app = require("../scripts/spider-pictures/index.js");
 const priceFind = new PriceFinder();
 // Item Model
 const Item = require("../models/Item");
@@ -258,23 +259,30 @@ router.post("/find", async (req, res) => {
 
   // check if the search query is a url
   // simple check for now
-  if( searchQuery.includes("http") || searchQuery.includes("www") || searchQuery.includes(".com")) {
+  // check if url is for amazon item
+  if (searchQuery.includes("amazon.com")){
+    // use price finder to get item info
+    // console.log("amazon url");
+    var item = await scrapeAmazon(searchQuery);
+    var items = await scrapeGoogleShop(item.title);
+    items.push(item);
+  } else if ( searchQuery.includes("http") || searchQuery.includes("www") || searchQuery.includes(".com")) {
     // url -> need to scrap title
-    console.log("searchQuery is a URL");
+    // console.log("searchQuery is a URL");
+    var title = await app.getTitle(searchQuery);
+    console.log(title);
+    var items = await scrapeGoogleShop(title);
 
-    // check if url is for amazon item
-    if( searchQuery.includes("amazon.com")){
-      // use price finder to get item info
-      var item = await scrapeAmazon(searchQuery);
-      var items = await scrapeGoogleShop(item.title);
-      items.push(item);
-    }
   } else {
     // string -> scrape google shopping
-    console.log("searchQuery is a product title");
+    // console.log("searchQuery is a product title");
     var items = await scrapeGoogleShop(searchQuery);
   }
 
+  let err = "";
+  if (items.length == 0) {
+    err = "No items found. Please try again.";
+  } 
 
   if (req.session.passport.user) {
     const lists = await Wishlist.find({
@@ -283,15 +291,16 @@ router.post("/find", async (req, res) => {
     return res.render("pages/item/searchResults", {
       user: req.session.passport.user,
       items,
-      lists
+      lists,
+      err_msg: err
     });
   } else {
     return res.render("pages/item/searchResults", {
       user: req.session.passport.user,
-      items
+      items,
+      err_msg: err
     });
   }
-  
 
 });
 
