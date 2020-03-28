@@ -205,8 +205,11 @@ async function scrapeGoogleShop ( itemName ) {
       return itemLinks;
     });
 
+    // limit number of items scraped to 5
+    var maxItems = itemLinks.length > 5 ? 5 : itemLinks.length;
+
     let items = [];
-    for (var i = 0; i < itemLinks.length; i++) {
+    for (var i = 0; i < maxItems; i++) {
 
       await page.goto(itemLinks[i]);
       await page.waitForSelector('span.BvQan.sh-t__title-pdp.sh-t__title.translate-content');
