@@ -2,19 +2,19 @@ const strSimilar = require("string-similarity");
 const Item = require("../../models/Item");
 
 // When using this in a the web app we shouldn't need this
-const path = require("path");
-const mongoose = require("mongoose");
-require("dotenv").config({ path: path.join(__dirname, "../../.env") });
+// const path = require("path");
+// const mongoose = require("mongoose");
+// require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 
-// Connect to Mongo
-mongoose
-  .connect(process.env.MONGOURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true
-  })
-  .then(() => console.log("MongoDB Connected..."))
-  .catch(err => console.log(err));
+// // Connect to Mongo
+// mongoose
+//   .connect(process.env.MONGOURI, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+//     useCreateIndex: true
+//   })
+//   .then(() => console.log("MongoDB Connected..."))
+//   .catch(err => console.log(err));
 
 const test = async mainStr => {
   // Make database call to get all items
@@ -33,9 +33,9 @@ const test = async mainStr => {
   });
 
   // If the best match has a low confidence level then don't use it
-  if (bestRating < 0.5) return "No matches";
-
   console.log(bestRating);
+  if (bestRating < 0.5) return -1;
+
   return bestMatchItem;
 };
 
