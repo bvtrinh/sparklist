@@ -4,19 +4,18 @@ const passport = require("passport");
 
 const saltRounds = 10;
 
-const authCheck = (req, res, next) => {
-  if (req.user) {
+const loggedIn = (req, res, next) => {
+  if (req.isAuthenticated()) {
     // user logged in
     res.redirect("/");
   } else {
     // user not logged in
-    console.log("not logged in");
     next();
   }
 };
 
-const authCheck__ = (req, res, next) => {
-  if (!req.user) {
+const authCheck = (req, res, next) => {
+  if (!req.isAuthenticated()) {
     // user not logged in
     res.redirect("/user/login");
   } else {
@@ -25,20 +24,19 @@ const authCheck__ = (req, res, next) => {
   }
 };
 
-
 // User Model
 const User = require("../models/User");
 
-router.get("/login", authCheck, (req, res) => {
+router.get("/login", loggedIn, (req, res) => {
   res.render("pages/user/login");
 });
 
-router.get("/register", authCheck, (req, res) => {
+router.get("/register", loggedIn, (req, res) => {
   res.render("pages/user/register");
 });
 
 // handle registeration
-router.post("/register", (req, res) => {
+router.post("/register", loggedIn, (req, res) => {
   const { fname, lname, email, password, passwordConfirm } = req.body;
   let errors = [];
 
@@ -109,15 +107,15 @@ router.post("/register", (req, res) => {
   }
 });
 
-router.get("/profile", authCheck__, (req, res) => {
-  res.render("pages/user/profile", { user: req.user });
+router.get("/profile", authCheck, (req, res) => {
+  res.render("pages/user/profile", { user: req.session.passport.user });
 });
 
-router.get("/update", authCheck__, (req, res) => {
-  res.render("pages/user/updateProfile", { user: req.user });
+router.get("/update", authCheck, (req, res) => {
+  res.render("pages/user/updateProfile", { user: req.session.passport.user });
 });
 
-router.post("/update", authCheck__, (req, res) => {
+router.post("/update", authCheck, (req, res) => {
   const { fname, lname, email } = req.body;
   let userID = req.query.userID;
 
@@ -138,38 +136,39 @@ router.post("/update", authCheck__, (req, res) => {
     }
     res.redirect("/user/profile");
   });
-
 });
 
-router.get("/updatePassword", authCheck__, (req, res) => {
-  res.render("pages/user/updatePassword", { user: req.user });
+router.get("/updatePassword", authCheck, (req, res) => {
+  res.render("pages/user/updatePassword", { user: req.session.passport.user });
 });
 
-router.post("/updatePassword", authCheck__, (req, res) => {
+router.post("/updatePassword", authCheck, (req, res) => {
   const { oldPassword, password, confirmPassword } = req.body;
   let userID = req.query.userID;
   let errors = [];
 
   User.findById(userID).then(user => {
-    if (user) {    
-
+    if (user) {
       // Check old password matches
       bcrypt.compare(oldPassword, user.password, function(err, result) {
-        if(result == false) {
-          errors.push({msg: "Old Password is incorrect."})
+        if (result == false) {
+          errors.push({ msg: "Old Password is incorrect." });
         }
         // Check new passwords match
         if (password !== confirmPassword) {
-          errors.push({msg: "New passwords do not match."});
+          errors.push({ msg: "New passwords do not match." });
         }
 
         // Check new password length
-        if(password.length < 6) {
+        if (password.length < 6) {
           errors.push({ msg: "Password should be atleast 6 characters long." });
         }
 
-        if(errors.length > 0) {
-          res.render("pages/user/updatePassword", { errors, user: req.user });
+        if (errors.length > 0) {
+          res.render("pages/user/updatePassword", {
+            errors,
+            user: req.session.passport.user
+          });
         } else {
           bcrypt.hash(password, saltRounds, function(err, hash) {
             user.password = hash;
@@ -177,10 +176,9 @@ router.post("/updatePassword", authCheck__, (req, res) => {
             res.redirect("/user/profile");
           });
         }
-      });      
+      });
     }
   });
-
 });
 
 module.exports = router;

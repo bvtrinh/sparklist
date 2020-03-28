@@ -20,6 +20,7 @@
 
         <a href="/wishlist/create"><button type="button" class="btn btn-primary" name="wishlist">Create
                 Wishlist</button></a>
+        <hr class="my-4">
 
         <% if (wishlists) { %>
         <table class="table">
@@ -39,7 +40,8 @@
                     <td><a href="/wishlist/view/?wishlistID=<%= wishlist._id %>"><%= wishlist.name %></a></td>
                     <td><%= wishlist.sharedUsers %></td>
                     <td><%= wishlist.visibility %></td>
-                    <td><a href="/wishlist/manage/?wishlistID=<%= wishlist._id %>"><i class="fas fa-edit"></i></a></td>
+                    <td><a class="btn btn-info" href="/wishlist/manage/?wishlistID=<%= wishlist._id %>"><i
+                                class="fas fa-edit"></i></a></td>
                 </tr>
                 <% }); %>
             </tbody>
