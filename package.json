@@ -33,6 +33,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.0",
     "fs": "0.0.1-security",
+    "g-i-s": "^2.1.5",
     "jade": "^1.11.0",
     "mailgun-js": "^0.22.0",
     "mongoose": "^5.9.0",

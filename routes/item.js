@@ -1,16 +1,18 @@
 const router = require("express").Router();
+var gis = require("g-i-s");
+const puppeteer = require("puppeteer");
+const chalk = require("chalk");
 const labeler = require("../scripts/vision/labeling");
-const PriceFinder = require("price-finder");
 const scrape = require("../scripts/spider-pictures");
 const app = require("../scripts/spider-pictures/index.js");
+const PriceFinder = require("price-finder");
 const priceFind = new PriceFinder();
+
 // Item Model
 const Item = require("../models/Item");
 const Wishlist = require("../models/Wishlist");
 
-const puppeteer = require("puppeteer");
-const chalk = require("chalk");
-
+// chalk config
 const error = chalk.bold.red;
 const success = chalk.keyword("green");
 
@@ -152,10 +154,25 @@ router.get("/find", authCheck, (req, res) => {
   res.render("pages/item/findItem", { user: req.session.passport.user });
 });
 
+async function labelItem( itemName ) {
+  return new Promise(resolve => {
+    // get image of item
+    gis(itemName, (error, results) => {
+      if (error) {
+        console.log(error);
+      }
+      else {
+        // get labels from image
+        var labels = labeler(results[0].url);
+        resolve(labels)
+      }
+    });  
+  });
+}
+
 async function scrapeAmazon ( url ) {
   return new Promise(resolve => {
     priceFind.findItemDetails(url, async (err, itemDetails) => {
-      // console.log("itemDetails: " + itemDetails)
       const img_url = await scrape.amazon(url);
       const labels = await labeler(img_url[0]);
   
@@ -172,7 +189,6 @@ async function scrapeAmazon ( url ) {
     });
   });
 }
-
 
 async function scrapeGoogleShop ( itemName ) {
   try {
@@ -213,14 +229,21 @@ async function scrapeGoogleShop ( itemName ) {
 
       await page.goto(itemLinks[i]);
       await page.waitForSelector('span.BvQan.sh-t__title-pdp.sh-t__title.translate-content');
-
-      items[i] = await page.evaluate((i) => {
+      
+      items[i] = await page.evaluate((i) => {   
         item = {
           title: document
             .querySelector(
               `span.BvQan.sh-t__title-pdp.sh-t__title.translate-content`
             )
             .innerHTML.trim(),
+          price_hist: { 
+            price: document
+              .querySelector(
+                `span.NVfoXb > b`
+              ), 
+            date: Date().toString() 
+          },
           current_price: document
             .querySelector(
               `span.NVfoXb > b`
@@ -231,19 +254,22 @@ async function scrapeGoogleShop ( itemName ) {
             document.querySelector(`a.txYPsb.mpeCOc.shntl`).getAttribute("href"),
           img_url:  document
             .querySelector(`img.sh-div__image.sh-div__current`)
-            .getAttribute("src")
+            .getAttribute("src"),
+          labels: null
         }
-
         return item;
       });
     }
-    
+
     for (var i = 0; i < items.length; i++) {
-      // get actual link to item
+      // get actual link to item and labels
       await page.goto("https://www." + items[i].url);
       items[i].url = await page.url();
-    }
 
+      // label item
+      items[i].labels = await labelItem(items[i].title);
+    }
+    
     await browser.close();
     console.log(success("Browser Closed"));
 
@@ -263,22 +289,18 @@ router.post("/find", async (req, res) => {
   // check if the search query is a url
   // simple check for now
   // check if url is for amazon item
-  if (searchQuery.includes("amazon.com")){
+  if (searchQuery.includes("amazon.c")){
     // use price finder to get item info
-    // console.log("amazon url");
     var item = await scrapeAmazon(searchQuery);
     var items = await scrapeGoogleShop(item.title);
     items.push(item);
   } else if ( searchQuery.includes("http") || searchQuery.includes("www") || searchQuery.includes(".com")) {
     // url -> need to scrap title
-    // console.log("searchQuery is a URL");
     var title = await app.getTitle(searchQuery);
-    console.log(title);
     var items = await scrapeGoogleShop(title);
 
   } else {
     // string -> scrape google shopping
-    // console.log("searchQuery is a product title");
     var items = await scrapeGoogleShop(searchQuery);
   }
 
