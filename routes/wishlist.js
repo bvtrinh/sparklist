@@ -326,6 +326,24 @@ router.post("/addlist", authCheck, async (req, res) => {
   return res.redirect(`/wishlist/view/?wishlistID=${req.body.list}`);
 });
 
+router.post("/addListScraped", authCheck, async (req, res) => {
+  const {title, current_price, url, img_url, labels, list_id} = req.body;
+
+  // add item to items collections
+  new Item({
+    title: title,
+    price_hist: { price: current_price, date: Date().toString() },
+    current_price: current_price,
+    img_url: img_url,
+    url: url,
+    labels: labels
+  }).save().then(async(item) => {
+    await Wishlist.updateOne( {_id: list_id}, { $addToSet: { items: item._id } });
+    // Redirect to wishlist view
+    return res.redirect(`/wishlist/view/?wishlistID=${list_id}`);
+  });
+});
+
 router.post(
   "/deleteItem/:wishlistID/:itemID",
   authCheck,
