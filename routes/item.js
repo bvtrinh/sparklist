@@ -1,5 +1,5 @@
 const router = require("express").Router();
-var gis = require("g-i-s");
+const gis = require("g-i-s");
 const puppeteer = require("puppeteer");
 const chalk = require("chalk");
 const labeler = require("../scripts/vision/labeling");
@@ -202,6 +202,25 @@ async function scrapeGoogleShop ( itemName ) {
     await page.goto(`https://shopping.google.com/`);
     await page.type('input.lst', itemName);
     page.keyboard.press('Enter');
+    await page.waitForSelector('span.qa708e');
+
+    // change google shopping view 
+    var viewLink = await page.evaluate(() => {
+      // switch view
+      if(document.querySelectorAll(`a.qPKfxd > span.qa708e`).length > 0){
+        console.log(document.querySelector(`a.qPKfxd`).getAttribute("href"));
+  
+        return "https://www.google.com" + document.querySelector(`a.qPKfxd`).getAttribute("href");
+
+      } else {
+        return null;
+      }
+    });
+
+    if(viewLink != null){ 
+      await page.goto(viewLink);
+    }
+
     await page.waitForSelector('a.VZTCjd.REX1ub.translate-content');
 
     // scrape info from page
