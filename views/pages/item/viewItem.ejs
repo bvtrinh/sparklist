@@ -118,11 +118,7 @@
 
 <head>
   
-  <script type="text/javascript">
-
-    // var express = require("express");
-    // var app = express();
-    
+  <script type="text/javascript">    
 
     $(document).ready(function() {
     const id = $("#itemID").val();
@@ -141,7 +137,6 @@
     function graph(data)
     {
       itemInfo = data.results;
-      // console.log(data)
       google.charts.load('current', {'packages':['corechart']});
       google.charts.setOnLoadCallback(drawBasic);
     }
@@ -150,54 +145,74 @@
     {
       var allData = [];
 
-      for(var i = 0; i < graphData.length; i++)
-      {
+      for(var i = 0; i < graphData.length; i++) {
           var currentData = []
+          
+          var date = new Date(graphData[i].date);
+          var dateString = date.getMonth() + "/" + date.getDate();
 
-          currentData.push(parseFloat(graphData[i].date.substring(5,10).replace(/-/g,".")));
-          // currentData.push(graphData[i].date);
+          currentData.push(dateString);
           currentData.push(graphData[i].price);
-
           allData.push(currentData);
       }
       
       return allData;
     }
 
+    function dataMinMax(graphData) {
+      var prices = [];
+      for(var i = 0; i < graphData.length; i++) {
+        prices[i] = graphData[i].price;
+
+      }
+
+      var min = Math.ceil(Math.min.apply(null, prices))-5;
+      var max = Math.ceil(Math.max.apply(null, prices))+5;
+
+      return {min: min, max: max}
+    }
     
     function drawBasic() {
 
-
-      console.log(itemInfo);
-      console.log(itemInfo.price_hist[0].price);
-      console.log(typeof itemInfo.price_hist[0].date);
-
       price_hist = itemInfo.price_hist;
-
       graphData = prepData(price_hist);
       
       var data = new google.visualization.DataTable();
-      data.addColumn('number', 'Date');
+      data.addColumn('string', 'Date');
       data.addColumn('number', 'Price');
-
-      // data.addRows([[1,5], [1, 1],[4,7] ,[7, 4]
-      // ]);
-
       data.addRows(graphData);
 
+      var winMinMax = dataMinMax(price_hist);
+
       var options = {
-      hAxis: {
-      title: 'Date (MMDD)'
-      },
-      vAxis: {
-      title: 'Price'
-    }
+        vAxis: {
+          format: 'currency',
+          gridlines: {
+            count: 10,
+          },
+          viewWindowMode:'explicit',
+          viewWindow:{
+            max: winMinMax.max,
+            min: winMinMax.min
+          }    
+        },
+        legend: {
+          position: 'none'
+        },       
+        series: {
+          0: {
+            type: "steppedArea", 
+            areaOpacity: 0
+          }
+        }
+
       };
 
-    var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+      var chart = new google.visualization.SteppedAreaChart(document.getElementById('chart_div'));
 
-    chart.draw(data, options);
+      chart.draw(data, options);
     }
+
   </script>
 </head>
 <body>
