@@ -22,6 +22,22 @@ const sorts = [
   ["-title", "Name: Z to A"]
 ];
 
+// Item categories
+const categories = {
+  Books: ["Text", "Font", "Poster", "Magazine", "Book cover"],
+  Clothing: ["Clothing"],
+  Electronics: ["Technology", "Electronic device", "Gadget"],
+  "Home and Kitchen": [
+    "Home appliance",
+    "Kitchen appliance",
+    "Small appliance"
+  ],
+  Movie: ["Movie", "Poster", "Hero"],
+  "Sports Equipment": ["Sports equipment", "Sports gear", "Helmet"],
+  Tools: ["Tools"],
+  "Video Games": ["Video game software", "Games", "Pc game"]
+};
+
 const authCheck = (req, res, next) => {
   if (!req.isAuthenticated()) {
     // user not logged in
@@ -35,6 +51,47 @@ const authCheck = (req, res, next) => {
 const getUserInfo = req => {
   return req.isAuthenticated() ? req.session.passport.user : undefined;
 };
+
+async function getCategory(labels, category = "Other") {
+  let ratings = {
+    Books: 0,
+    Clothing: 0,
+    Electronics: 0,
+    "Home and Kitchen": 0,
+    Movie: 0,
+    "Sports Equipment": 0,
+    Tools: 0,
+    "Video Games": 0
+  };
+
+  // The case where we are using the Amazon Price Finder package
+  // Sometimes will return a accurate category
+  if (category !== "Other") return category;
+
+  // Test all categories
+  for (let [key, value] of Object.entries(categories)) {
+    let matchedTerms = labels.filter(term => {
+      return value.includes(term);
+    });
+
+    ratings[key] = matchedTerms.length;
+  }
+
+  // Find the category with the max value
+  let maxTerm;
+  let maxVal = 0;
+  for (let [key, value] of Object.entries(ratings)) {
+    if (value > maxVal) {
+      maxVal = value;
+      maxTerm = key;
+    }
+  }
+
+  // If no terms match then categorize as Other
+  if (maxVal === 0) return "Other";
+
+  return maxTerm;
+}
 
 router.get("/add", authCheck, async (req, res) => {
   const lists = await Wishlist.find({ owner: req.session.passport.user.email });
@@ -57,7 +114,7 @@ router.post("/process", (req, res) => {
       title: itemDetails.name,
       price_hist: { price: itemDetails.price, date: Date().toString() },
       current_price: itemDetails.price,
-      category: itemDetails.category,
+      category: await getCategory(labels, itemDetails.getCategory),
       img_url: img_url[0],
       url,
       labels
