@@ -49,10 +49,13 @@
       </div>
 
       <div class="col-lg-7">
-        <div class="card price-card h-100 pt-3 shadow">
-          <h3 class="card-title">Price History</h3>
-          <h2>WIP</h2>
-          <img src="/img/price-chart.png" class="card-img-price" alt="...">
+        <div class="card price-card h-100 pt-3 shadow" >
+          <h3 class="card-title" >Price History</h3>
+          <!-- <h2>WIP</h2>
+          <img src="/img/price-chart.png" class="card-img-price" alt="..."> -->
+
+          <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+          <div id="chart_div"></div>
         </div>
       </div>
 
@@ -105,8 +108,101 @@
 
   </div>
 
+<input type = "hidden", id = "itemID", value = "<%= item._id %>" > 
+
+
   <%- include ('../../partials/endBody.ejs') %>
 </body>
 
 
+
+<head>
+  
+  <script type="text/javascript">
+
+    // var express = require("express");
+    // var app = express();
+    
+
+    $(document).ready(function() {
+    const id = $("#itemID").val();
+
+    $.ajax({
+      url: "/item/priceHistory",
+      method: "POST",
+      data: { itemID: id },
+      dataType: "JSON",
+      success: function(data) {graph(data)}
+      });
+    });
+  
+    var itemInfo;
+
+    function graph(data)
+    {
+      itemInfo = data.results;
+      // console.log(data)
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawBasic);
+    }
+    
+    function prepData(graphData)
+    {
+      var allData = [];
+
+      for(var i = 0; i < graphData.length; i++)
+      {
+          var currentData = []
+
+          currentData.push(parseFloat(graphData[i].date.substring(5,10).replace(/-/g,".")));
+          // currentData.push(graphData[i].date);
+          currentData.push(graphData[i].price);
+
+          allData.push(currentData);
+      }
+      
+      return allData;
+    }
+
+    
+    function drawBasic() {
+
+
+      console.log(itemInfo);
+      console.log(itemInfo.price_hist[0].price);
+      console.log(typeof itemInfo.price_hist[0].date);
+
+      price_hist = itemInfo.price_hist;
+
+      graphData = prepData(price_hist);
+      
+      var data = new google.visualization.DataTable();
+      data.addColumn('number', 'Date');
+      data.addColumn('number', 'Price');
+
+      // data.addRows([[1,5], [1, 1],[4,7] ,[7, 4]
+      // ]);
+
+      data.addRows(graphData);
+
+      var options = {
+      hAxis: {
+      title: 'Date (MMDD)'
+      },
+      vAxis: {
+      title: 'Price'
+    }
+      };
+
+    var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+
+    chart.draw(data, options);
+    }
+  </script>
+</head>
+<body>
+  <div id="piechart" style="width: 900px; height: 500px;"></div>
+</body>
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 </html>

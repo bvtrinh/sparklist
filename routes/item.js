@@ -145,4 +145,19 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+
+
+router.post("/priceHistory", async (req, res) => {
+  const groupID = req.body.groupID;
+  const itemID = req.body.itemID;
+
+  const results = await Item.findById(itemID);
+
+  res.json({results});
+
+
+ 
+});
+
+
 module.exports = router;
