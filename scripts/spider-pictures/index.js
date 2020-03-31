@@ -22,8 +22,12 @@ const getImageSrc = async page => {
   $(".imgTagWrapper")
     .find("img")
     .each((index, item) => {
-      const url = item.attribs["data-old-hires"];
-      if (url != undefined) imageSrcArr.push(url);
+      const urls = item.attribs["data-a-dynamic-image"];
+      if (urls != undefined) {
+        for (let key in JSON.parse(urls)) {
+          imageSrcArr.push(key);
+        }
+      }
     });
   return imageSrcArr;
 };

@@ -25,10 +25,10 @@
 
                 <div class="form-group">
                     <label for="groupName">Group Name</label>
-                    <input type="text" class="form-control" name="groupName" value=<%= group.name %>>
+                    <input type="text" class="form-control" name="groupName" value="<%= group.name %>">
                 </div>
 
-                <div class="form-group">
+                <div class=" form-group">
                     <label for="members">Members</label>
                     <input type="text" class="form-control" id="tokenfield-typeahead" name="members"
                         placeholder="Enter emails to send invitations"
@@ -38,12 +38,14 @@
                 <div class="form-group">
                     <div class="form-check form-check-inline">
                         <label class="form-check-label">
-                            <input type="radio" class="form-check-input" name="visibility" value="public">Public
+                            <input type="radio" class="form-check-input" name="visibility" value="public"
+                                <%= group.visibility && group.visibility === "public" ? "checked" : "" %>>Public
                         </label>
                     </div>
                     <div class="form-check form-check-inline">
                         <label class="form-check-label">
-                            <input type="radio" class="form-check-input" name="visibility" value="private">Private
+                            <input type="radio" class="form-check-input" name="visibility" value="private"
+                                <%= group.visibility && group.visibility === "private" ? "checked" : "" %>>Private
                         </label>
                     </div>
                 </div>

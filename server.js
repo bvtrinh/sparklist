@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const session = require("express-session");
+const MongoStore = require("connect-mongo")(session);
 const passport = require("passport");
 const passportSetup = require("./config/passport-setup");
 const flash = require("connect-flash");
@@ -15,12 +16,8 @@ const Item = require("./models/Item");
 const items = require("./routes/item");
 const users = require("./routes/user");
 const auth = require("./routes/auth");
-const profile = require("./routes/profile");
 const group = require("./routes/group");
 const wishlist = require("./routes/wishlist");
-
-const addItem = require("./routes/addItem");
-const searchDB = require("./routes/searchDB");
 
 const app = express();
 
@@ -31,6 +28,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
+// Connect to Mongo
+mongoose
+  .connect(process.env.MONGOURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true
+  })
+  .then(() => console.log("MongoDB Connected..."))
+  .catch(err => console.log(err));
+
 // Express session
 app.use(
   session({
@@ -38,6 +45,10 @@ app.use(
     maxAge: 24 * 60 * 60 * 1000,
     resave: true,
     saveUninitialized: true,
+    store: new MongoStore({ mongooseConnection: mongoose.connection }),
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000
+    },
     secret: process.env.SESSION_SECRET
   })
 );
@@ -48,19 +59,6 @@ app.use(passport.session());
 
 // Connect flash
 app.use(flash());
-
-// DB Config
-const db = process.env.MONGOURI;
-
-// Connect to Mongo
-mongoose
-  .connect(db, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true
-  })
-  .then(() => console.log("MongoDB Connected..."))
-  .catch(err => console.log(err));
 
 // Global Vars
 app.use((req, res, next) => {
@@ -74,24 +72,37 @@ app.use((req, res, next) => {
 app.use("/item", items);
 app.use("/user", users);
 app.use("/auth", auth);
-app.use("/profile", profile);
 app.use("/group", group);
 app.use("/wishlist", wishlist);
 
-
-app.use("/searchDB", searchDB);
-app.use("/add", addItem);
+const authCheck = (req, res, next) => {
+  if (!req.isAuthenticated()) {
+    // user not logged in
+    res.redirect("/user/login");
+  } else {
+    // user logged in
+    next();
+  }
+};
 
 app.get("/", (req, res) => {
+  const user = req.isAuthenticated() ? req.session.passport.user : undefined;
   Item.find()
     .sort({ title: 1 })
     .limit(4)
     .then(items => {
-      return res.render("pages/home", { user: req.user, items });
+      return res.render("pages/home", {
+        user,
+        items
+      });
     })
     .catch(err => {
       console.log(err);
     });
+});
+
+app.get("/error", authCheck, (req, res) => {
+  return res.render("pages/error", { user: req.session.passport.user });
 });
 
 console.log("Running on " + process.env.NODE_ENV);

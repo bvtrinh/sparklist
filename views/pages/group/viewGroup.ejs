@@ -12,44 +12,44 @@
 <body>
     <%- include ('../../partials/navbar.ejs') %>
     <div class="container">
-        <h1 class="mt-5 mb-3">Groups</h1>
+        <h1 class="mt-5 mb-3"><%=group.name%></h1>
+        <h4>Admin: <%=group.admin%></h4>
+        <hr class="my-4">
+        <h2>Members:</h2>
+        <hr class="my-4">
+        <ul>
+            <% group.members.forEach(member => { %>
+            <li><%= member%></li>
+            <% }); %>
+        </ul>
 
-        <% if(msg != '') { %>
-        <p><%= msg %></p>
-        <% } %>
-
-        <a href="/group/create"><button type="button" class="btn btn-primary" name="group">Create Group</button></a>
-
-        <% if (groups) { %>
+        <% if (group.wishlists) { %>
+        <h2>Shared Wishlists</h2>
+        <div class="table-responsive"></div>
         <table class="table">
             <thead>
                 <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Admin</th>
-                    <th scope="col">Members</th>
-                    <th scope="col">Visibility</th>
-                    <th scope="col">Edit</th>
+                    <th>Name</th>
+                    <th>Owner</th>
                 </tr>
             </thead>
             <tbody>
-                <% groups.forEach(group => { %>
+                <% group.wishlists.forEach(list => { %>
                 <tr>
-                    <td><%= group._id %></td>
-                    <td><%= group.name %></td>
-                    <td><%= group.admin %></td>
-                    <td><%= group.members %></td>
-                    <td><%= group.visibility %></td>
-                    <td><a href="/group/manage/?groupID=<%= group._id %>"><i class="fas fa-edit"></i></a></td>
+                    <td><a href="/wishlist/view/?wishlistID=<%= list._id %>"><%=list.name %></a></td>
+                    <td><%=list.owner%></td>
+
                 </tr>
-                <% }); %>
+                <% }) %>
             </tbody>
         </table>
         <% } %>
 
-    </div>
 
-    <%- include ('../../partials/endBody.ejs') %>
+
+        <%- include ('../../partials/endBody.ejs') %>
+        <script src="/js/addListToGrp.js"></script>
+        <script src="/js/removeGrp.js"></script>
 </body>
 
 

@@ -13,7 +13,6 @@ router.post("/login", (req, res, next) => {
 // logout
 router.get("/logout", (req, res) => {
   // handle with passport
-  console.log("logging out");
   req.logout();
   res.redirect("/");
 });
@@ -28,7 +27,6 @@ router.get(
 
 // google redirect callback
 router.get("/google/redirect", passport.authenticate("google"), (req, res) => {
-  // res.send(req.user);
   res.redirect("/");
 });
 
