@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const session = require("express-session");
+const MongoStore = require("connect-mongo")(session);
 const passport = require("passport");
 const passportSetup = require("./config/passport-setup");
 const flash = require("connect-flash");
@@ -27,6 +28,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
+// Connect to Mongo
+mongoose
+  .connect(process.env.MONGOURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true
+  })
+  .then(() => console.log("MongoDB Connected..."))
+  .catch(err => console.log(err));
+
 // Express session
 app.use(
   session({
@@ -34,6 +45,10 @@ app.use(
     maxAge: 24 * 60 * 60 * 1000,
     resave: true,
     saveUninitialized: true,
+    store: new MongoStore({ mongooseConnection: mongoose.connection }),
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000
+    },
     secret: process.env.SESSION_SECRET
   })
 );
@@ -44,19 +59,6 @@ app.use(passport.session());
 
 // Connect flash
 app.use(flash());
-
-// DB Config
-const db = process.env.MONGOURI;
-
-// Connect to Mongo
-mongoose
-  .connect(db, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true
-  })
-  .then(() => console.log("MongoDB Connected..."))
-  .catch(err => console.log(err));
 
 // Global Vars
 app.use((req, res, next) => {
@@ -74,7 +76,7 @@ app.use("/group", group);
 app.use("/wishlist", wishlist);
 
 const authCheck = (req, res, next) => {
-  if (!req.user) {
+  if (!req.isAuthenticated()) {
     // user not logged in
     res.redirect("/user/login");
   } else {
@@ -84,11 +86,15 @@ const authCheck = (req, res, next) => {
 };
 
 app.get("/", (req, res) => {
+  const user = req.isAuthenticated() ? req.session.passport.user : undefined;
   Item.find()
     .sort({ title: 1 })
     .limit(4)
     .then(items => {
-      return res.render("pages/home", { user: req.user, items });
+      return res.render("pages/home", {
+        user,
+        items
+      });
     })
     .catch(err => {
       console.log(err);
@@ -96,7 +102,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/error", authCheck, (req, res) => {
-  return res.render("pages/error", { user: req.user });
+  return res.render("pages/error", { user: req.session.passport.user });
 });
 
 console.log("Running on " + process.env.NODE_ENV);

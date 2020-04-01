@@ -7,13 +7,28 @@ const Users = require("../models/User");
 const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, "../.env") });
 
+// Stores user information into req.session.user
 passport.serializeUser((user, done) => {
-  done(null, user.id);
+  done(null, {
+    _id: user._id,
+    fname: user.fname,
+    lname: user.lname,
+    email: user.email,
+    date: user.date
+  });
 });
 
-passport.deserializeUser((id, done) => {
-  Users.findById(id).then(user => {
-    done(null, user);
+// Stores user information into req.user
+// req.user will not work with multiple pods
+passport.deserializeUser((user, done) => {
+  Users.findById(user._id).then(user => {
+    done(null, {
+      _id: user._id,
+      fname: user.fname,
+      lname: user.lname,
+      email: user.email,
+      date: user.date
+    });
   });
 });
 

@@ -11,7 +11,7 @@ const Group = require("../models/Group");
 const Item = require("../models/Item");
 
 const authCheck = (req, res, next) => {
-  if (!req.user) {
+  if (!req.isAuthenticated()) {
     // user not logged in
     res.redirect("/user/login");
   } else {
@@ -20,10 +20,14 @@ const authCheck = (req, res, next) => {
   }
 };
 
+const getUserInfo = req => {
+  return req.isAuthenticated() ? req.session.passport.user : undefined;
+};
+
 const ownerCheck = async (req, res, next) => {
   const results = await Wishlist.findOne({
     $and: [
-      { owner: req.user.email },
+      { owner: req.session.passport.user.email },
       { _id: req.query.wishlistID || req.params.wishlistID }
     ]
   });
@@ -42,13 +46,13 @@ const accessCheck = async (req, res, next) => {
   const shared = await Wishlist.findOne({
     $and: [
       { _id: req.query.wishlistID || req.params.wishlistID },
-      { sharedUsers: req.user.email }
+      { sharedUsers: req.session.passport.user.email }
     ]
   });
 
   const owner = await Wishlist.findOne({
     $and: [
-      { owner: req.user.email },
+      { owner: req.session.passport.user.email },
       { _id: req.query.wishlistID || req.params.wishlistID }
     ]
   });
@@ -60,7 +64,12 @@ const accessCheck = async (req, res, next) => {
     { groups: 1 }
   ).populate({
     path: "groups",
-    match: { $or: [{ members: req.user.email }, { admin: req.user.email }] }
+    match: {
+      $or: [
+        { members: req.session.passport.user.email },
+        { admin: req.session.passport.user.email }
+      ]
+    }
   });
 
   if (shared || owner || group) {
@@ -91,7 +100,9 @@ const sendNotification = async (newInvites, fullname, listID, listname) => {
 };
 
 router.get("/create", authCheck, (req, res) => {
-  res.render("pages/wishlist/createWishlist", { user: req.user });
+  res.render("pages/wishlist/createWishlist", {
+    user: req.session.passport.user
+  });
 });
 
 // handle wishlist creation
@@ -109,7 +120,7 @@ router.post("/create", authCheck, (req, res) => {
 
   if (errors.length > 0) {
     res.render("pages/wishlist/createWishlist", {
-      user: req.user,
+      user: req.session.passport.user,
       errors,
       wishlistName,
       invites: null,
@@ -119,31 +130,32 @@ router.post("/create", authCheck, (req, res) => {
     // initial validation passed
     // check if user has wishlist with same name
 
-    Wishlist.find({ owner: req.user.email, name: wishlistName }).then(
-      wishlist => {
-        if (wishlist.length != 0) {
-          // user already has wishlist with entered name -> error
-          errors.push({
-            msg:
-              "You already created a wishlist with this name. Please try again with a different name."
+    Wishlist.find({
+      owner: req.session.passport.user.email,
+      name: wishlistName
+    }).then(wishlist => {
+      if (wishlist.length != 0) {
+        // user already has wishlist with entered name -> error
+        errors.push({
+          msg:
+            "You already created a wishlist with this name. Please try again with a different name."
+        });
+        res.render("pages/wishlist/createWishlist", {
+          errors,
+          visibility
+        });
+      } else {
+        new Wishlist({
+          name: wishlistName,
+          owner: req.session.passport.user.email,
+          visibility: visibility
+        })
+          .save()
+          .then(newWishlist => {
+            res.redirect("/wishlist");
           });
-          res.render("pages/wishlist/createWishlist", {
-            errors,
-            visibility
-          });
-        } else {
-          new Wishlist({
-            name: wishlistName,
-            owner: req.user.email,
-            visibility: visibility
-          })
-            .save()
-            .then(newWishlist => {
-              res.redirect("/wishlist");
-            });
-        }
       }
-    );
+    });
   }
 });
 
@@ -168,7 +180,7 @@ router.post("/update/", authCheck, ownerCheck, (req, res) => {
         wishlist.sharedUsers.push(user.trim());
       });
 
-      const fullname = `${req.user.fname} ${req.user.lname}`;
+      const fullname = `${req.session.passport.user.fname} ${req.session.passport.user.lname}`;
       var newInvites = usersList.filter(member => {
         return !oldSharedUsers.includes(member);
       });
@@ -209,8 +221,13 @@ router.post("/delete/", authCheck, ownerCheck, async (req, res) => {
 // AJAX called used to fill the modal on the view /group/viewGroup
 router.post("/getlists", async (req, res) => {
   const groupID = req.body.groupID;
-  const results = await Wishlist.find({ owner: req.user.email });
-  const idObj = await Wishlist.find({ owner: req.user.email }, { _id: 1 });
+  const results = await Wishlist.find({
+    owner: req.session.passport.user.email
+  });
+  const idObj = await Wishlist.find(
+    { owner: req.session.passport.user.email },
+    { _id: 1 }
+  );
   var ids = [];
   idObj.forEach(ele => {
     ids.push(ele._id);
@@ -230,19 +247,22 @@ router.post("/getlists", async (req, res) => {
 router.get("/", authCheck, (req, res) => {
   // find all wishlists associated with this user
   Wishlist.find({
-    $or: [{ owner: req.user.email }, { sharedUsers: req.user.email }]
+    $or: [
+      { owner: req.session.passport.user.email },
+      { sharedUsers: req.session.passport.user.email }
+    ]
   }).then(wishlists => {
     if (wishlists.length == 0) {
       // user does not belong to any wishlists
       // add some type of message
       res.render("pages/wishlist/listWishlist", {
-        user: req.user,
+        user: req.session.passport.user,
         msg: "You do not have any wishlists.",
         wishlists: wishlists
       });
     } else {
       res.render("pages/wishlist/listWishlist", {
-        user: req.user,
+        user: req.session.passport.user,
         msg: "",
         wishlists: wishlists
       });
@@ -254,7 +274,10 @@ router.get("/manage/", authCheck, ownerCheck, (req, res) => {
   let wishlistID = req.query.wishlistID;
   Wishlist.findById(wishlistID).then(wishlist => {
     if (wishlist) {
-      res.render("pages/wishlist/updateWishlist", { wishlist, user: req.user });
+      res.render("pages/wishlist/updateWishlist", {
+        wishlist,
+        user: req.session.passport.user
+      });
     }
   });
 });
@@ -279,7 +302,7 @@ router.get("/view/", authCheck, accessCheck, (req, res) => {
           errors,
           wishlist,
           wishlistItems,
-          user: req.user
+          user: req.session.passport.user
         });
       });
     }
@@ -301,6 +324,26 @@ router.post("/addlist", authCheck, async (req, res) => {
 
   // Redirect to wishlist view
   return res.redirect(`/wishlist/view/?wishlistID=${req.body.list}`);
+});
+
+router.post("/addListScraped", authCheck, async (req, res) => {
+  const {title, current_price, url, img_url, labels, list_id} = req.body;
+
+  var labelsList = labels.split(',');
+
+  // add item to items collections
+  new Item({
+    title: title,
+    price_hist: { price: current_price, date: Date().toString() },
+    current_price: current_price,
+    img_url: img_url,
+    url: url,
+    labels: labelsList
+  }).save().then(async(item) => {
+    await Wishlist.updateOne( {_id: list_id}, { $addToSet: { items: item._id } });
+    // Redirect to wishlist view
+    return res.redirect(`/wishlist/view/?wishlistID=${list_id}`);
+  });
 });
 
 router.post(

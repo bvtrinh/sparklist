@@ -7,11 +7,28 @@ const amazon = async url => {
   return imageSrc;
 };
 
+const getTitle = async url => {
+  const page = await getPage(url);
+  const $ = cheerio.load(page.res.data);
+  var title;
+  title = $("h1")
+    .first()
+    .text();
+  // Amazon places the title in a span within the h1
+  if (title === "") {
+    title = $("h1")
+      .children()
+      .first()
+      .text();
+  }
+  if (title === "") return "Title was not found";
+  return title.trim();
+};
+
 const getPage = async url => {
   try {
     return { res: await axios.get(url) };
   } catch (err) {
-    console.log(err);
     return { res: await axios.get(url) };
   }
 };
@@ -22,12 +39,17 @@ const getImageSrc = async page => {
   $(".imgTagWrapper")
     .find("img")
     .each((index, item) => {
-      const url = item.attribs["data-old-hires"];
-      if (url != undefined) imageSrcArr.push(url);
+      const urls = item.attribs["data-a-dynamic-image"];
+      if (urls != undefined) {
+        for (let key in JSON.parse(urls)) {
+          imageSrcArr.push(key);
+        }
+      }
     });
   return imageSrcArr;
 };
 
 module.exports = {
-  amazon
+  amazon,
+  getTitle
 };
