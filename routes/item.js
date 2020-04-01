@@ -272,5 +272,58 @@ router.post("/priceHistory", async (req, res) => {
  
 });
 
+// var interval = 30000
+// setInterval(() => {
+//   updatePriceInfo();
+// }, interval);
+
+
+function updatePriceInfo()
+{
+
+  console.log("starting update");
+  Item.find().then(items=> {
+    if(items)
+    {
+      for(var i = 0; i < items.length; i++)
+      {
+        updateOneItem(items[i])
+      }
+    }
+  });
+}
+
+
+function updateOneItem(item)
+{
+  var url = item.url;
+  if(isValidURL(url))
+  {
+    priceFind.findItemDetails(url, async function(err, itemDetails){
+      if(itemDetails!=undefined)
+      {
+        console.log("updating " + item.title);
+        var id = item.id;
+        var newPrice = itemDetails.price;
+        var newPriceInfo = {price:newPrice, date:Date().toString()}
+
+        await Item.updateOne({_id:id}, {$push: {price_hist: newPriceInfo}}, {current_price:newPrice})
+      }
+    })
+  }
+}
+
+
+function isValidURL(url)
+{
+  if(url.includes("amazon")||url.includes("steam"))
+  {
+    return true;
+  }
+
+  else{
+    return false;
+  }
+}
 
 module.exports = router;
