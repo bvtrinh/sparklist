@@ -39,11 +39,6 @@ const getUserInfo = req => {
   return req.isAuthenticated() ? req.session.passport.user : undefined;
 };
 
-router.get("/add", authCheck, async (req, res) => {
-  const lists = await Wishlist.find({ owner: req.session.passport.user.email });
-  res.render("pages/item/addItem", { user: req.session.passport.user, lists });
-});
-
 router.post("/process", (req, res) => {
   const url = req.body.item_url;
   const list_id = { _id: req.body.list };
@@ -150,7 +145,7 @@ router.post("/homeSearch", async (req, res) => {
   }
 });
 
-router.get("/find", authCheck, (req, res) => {
+router.get("/add", authCheck, (req, res) => {
   res.render("pages/item/findItem", { user: req.session.passport.user });
 });
 
