@@ -19,7 +19,7 @@
         <h2 class='my-4'>Search</h2>
         <hr class="my-4">
 
-        <% if (items.length > 0) { %> 
+        <% if (items.length > 0) { %>
         <div align="center" class="card-deck row row-cols-lg-4 row-cols-md-2">
 
             <% items.forEach(function(item, i) { %>
@@ -30,26 +30,26 @@
                         <h5 class="card-title"><%= item.title %></a></h5>
                         <p class="card-text">$<%= item.current_price %></p>
                     </div>
-                    <div class="col input-group">
-              
+                    <div class="col input-group mb-3">
+
                         <form method="POST" action="/wishlist/addListScraped" class="form-inline">
-                          <input type="hidden" name="title" value="<%= item.title %>" />
-                          <input type="hidden" name="current_price" value="<%= item.current_price %>" />
-                          <input type="hidden" name="url" value="<%= item.url %>" />
-                          <input type="hidden" name="img_url" value="<%= item.img_url %>" />
-                          <input type="hidden" name="labels" value="<%= item.labels %>" />
+                            <input type="hidden" name="title" value="<%= item.title %>" />
+                            <input type="hidden" name="current_price" value="<%= item.current_price %>" />
+                            <input type="hidden" name="url" value="<%= item.url %>" />
+                            <input type="hidden" name="img_url" value="<%= item.img_url %>" />
+                            <input type="hidden" name="labels" value="<%= item.labels %>" />
 
-                          <select id="list" class="custom-select" name="list_id">
-                            <option disabled selected value="">Wishlists</option>
-                            <% lists.forEach((list) => { %>
-                            <option value="<%= list._id %>"><%= list.name %></option>
-                            <% }); %>
-                          </select>
+                            <select id="list" class="custom-select" name="list_id">
+                                <option disabled selected value="">Wishlists</option>
+                                <% lists.forEach((list) => { %>
+                                <option value="<%= list._id %>"><%= list.name %></option>
+                                <% }); %>
+                            </select>
 
-                          <div class="input-group-append">
-                            <button class="btn btn-primary" type="submit" id="button-addon2"><i
-                                class="fas fa-plus"></i></button>
-                          </div>
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="submit" id="button-addon2"><i
+                                        class="fas fa-plus"></i></button>
+                            </div>
                         </form>
                     </div>
                 </div>
