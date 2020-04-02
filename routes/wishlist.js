@@ -282,7 +282,7 @@ router.get("/manage/", authCheck, ownerCheck, (req, res) => {
   });
 });
 
-router.get("/view/", authCheck, accessCheck, (req, res) => {
+router.get("/view/", authCheck, accessCheck, async (req, res) => {
   const wishlistID = req.query.wishlistID;
 
   if (req.session.errors) {
@@ -290,36 +290,39 @@ router.get("/view/", authCheck, accessCheck, (req, res) => {
     delete req.session.errors;
   }
 
-  Wishlist.findById(wishlistID).then(wishlist => {
-    if (wishlist) {
-      Promise.all(
-        wishlist.items.map(item => {
-          return Item.findById(item).exec();
-        })
-      ).then(wishlistItems => {
-        // all found items here
-        res.render("pages/wishlist/viewWishlist", {
-          errors,
-          wishlist,
-          wishlistItems,
-          user: req.session.passport.user
-        });
-      });
-    }
+  const wishlist = await Wishlist.findById(wishlistID).populate(
+    "items.item_id"
+  );
+
+  return res.render("pages/wishlist/viewWishlist", {
+    errors,
+    wishlist,
+    wishlistItems: wishlist.items,
+    user: req.session.passport.user
   });
 });
 
 router.post("/addlist", authCheck, async (req, res) => {
   const item_id = req.body.id;
-  const list_id = { _id: req.body.list };
-  // Add item to wishlist
-  const result = await Wishlist.updateOne(list_id, {
-    $addToSet: { items: item_id }
+  const list_id = req.body.list;
+
+  const itemExists = await Wishlist.find({
+    _id: list_id,
+    "items.item_id": item_id
   });
-  var errors = [];
-  if (result.nModified <= 0) {
+
+  if (itemExists.length > 0) {
+    var errors = [];
     errors.push({ msg: "You've add this item to this wishlist already" });
     req.session.errors = errors;
+  } else {
+    // Add item to wishlist
+    const result = await Wishlist.updateOne(
+      { _id: list_id },
+      {
+        $push: { items: { item_id } }
+      }
+    );
   }
 
   // Redirect to wishlist view
