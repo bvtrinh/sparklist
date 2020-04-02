@@ -28,7 +28,10 @@ const ownerCheck = async (req, res, next) => {
   const results = await Wishlist.findOne({
     $and: [
       { owner: req.session.passport.user.email },
-      { _id: req.query.wishlistID || req.params.wishlistID }
+      {
+        _id:
+          req.query.wishlistID || req.params.wishlistID || req.body.wishlistID
+      }
     ]
   });
 
@@ -337,16 +340,28 @@ router.post(
     let wishlistID = req.params.wishlistID;
     let itemID = req.params.itemID;
 
-    await Wishlist.findById(wishlistID).then(wishlist => {
-      if (wishlist) {
-        wishlist.items.pull(itemID);
-        wishlist.save();
-      }
-    });
+    await Wishlist.updateOne(
+      { _id: wishlistID },
+      { $pull: { items: { item_id: itemID } } }
+    );
 
     // Redirect to wishlist view
     res.redirect(`/wishlist/view/?wishlistID=${wishlistID}`);
   }
 );
 
+router.post("/set-notify-price", ownerCheck, async (req, res) => {
+  const { wishlistID, itemID, notifyPrice } = req.body;
+  try {
+    await Wishlist.updateOne(
+      { _id: wishlistID, "items.item_id": itemID },
+      { $set: { "items.$.notify_price": notifyPrice } }
+    );
+  } catch (err) {
+    console.log(err);
+  } finally {
+    // Redirect to wishlist view
+    return res.redirect(`/wishlist/view/?wishlistID=${wishlistID}`);
+  }
+});
 module.exports = router;
