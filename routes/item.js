@@ -97,18 +97,13 @@ async function getCategory(labels, category = "Other") {
   return maxTerm;
 }
 
-router.get("/add", authCheck, async (req, res) => {
+router.get("/add", authCheck, (req, res) => {
   if (req.session.errors) {
     var errors = req.session.errors;
     delete req.session.errors;
   }
 
-  const lists = await Wishlist.find({ owner: req.session.passport.user.email });
-  res.render("pages/item/addItem", {
-    user: req.session.passport.user,
-    lists,
-    errors
-  });
+  res.render("pages/item/findItem", { user: req.session.passport.user });
 });
 
 router.post("/process", (req, res) => {
@@ -234,10 +229,6 @@ router.post("/homeSearch", async (req, res) => {
       err_msg: err
     });
   }
-});
-
-router.get("/add", authCheck, (req, res) => {
-  res.render("pages/item/findItem", { user: req.session.passport.user });
 });
 
 async function labelItem(itemName) {
@@ -456,78 +447,57 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-
-
 router.post("/priceHistory", async (req, res) => {
   const groupID = req.body.groupID;
   const itemID = req.body.itemID;
 
   const results = await Item.findById(itemID);
 
-  res.json({results});
-
-
-
- 
+  res.json({ results });
 });
 
-var interval = 86400000
+var interval = 86400000;
 setInterval(() => {
   updatePriceInfo();
 }, interval);
 
-
-function updatePriceInfo()
-{
-
+function updatePriceInfo() {
   console.log("starting update");
-  Item.find().then(items=> {
-    if(items)
-    {
-      for(var i = 0; i < items.length; i++)
-      {
-        updateOneItem(items[i], i)
+  Item.find().then(items => {
+    if (items) {
+      for (var i = 0; i < items.length; i++) {
+        updateOneItem(items[i], i);
       }
     }
   });
 }
 
-
-function updateOneItem(item, i)
-{
+function updateOneItem(item, i) {
   var url = item.url;
-  if(isValidURL(url))
-  {
-    priceFind.findItemDetails(url, async function(err, itemDetails){
-      if(itemDetails!=undefined)
-      {
-        
+  if (isValidURL(url)) {
+    priceFind.findItemDetails(url, async function(err, itemDetails) {
+      if (itemDetails != undefined) {
         console.log(i + " updating " + item.title);
         var id = item.id;
         var newPrice = itemDetails.price;
-        
-        if(newPrice>=0)
-        {
-          var newPriceInfo = {price:newPrice, date:Date().toString()}
 
-          await Item.updateOne({_id:id}, {$push: {price_hist: newPriceInfo}, current_price: newPrice})
-   
+        if (newPrice >= 0) {
+          var newPriceInfo = { price: newPrice, date: Date().toString() };
+
+          await Item.updateOne(
+            { _id: id },
+            { $push: { price_hist: newPriceInfo }, current_price: newPrice }
+          );
         }
       }
-        
-    })
+    });
   }
 }
 
-
-function isValidURL(url)
-{
-  if(url.includes("amazon")||url.includes("steam"))
-  {
+function isValidURL(url) {
+  if (url.includes("amazon") || url.includes("steam")) {
     return true;
-  }
-
-  else{
+  } else {
     return false;
   }
 }
