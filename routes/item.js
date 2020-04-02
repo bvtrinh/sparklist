@@ -269,13 +269,14 @@ router.post("/priceHistory", async (req, res) => {
   res.json({results});
 
 
+
  
 });
 
-// var interval = 30000
-// setInterval(() => {
-//   updatePriceInfo();
-// }, interval);
+var interval = 86400000
+setInterval(() => {
+  updatePriceInfo();
+}, interval);
 
 
 function updatePriceInfo()
@@ -287,14 +288,14 @@ function updatePriceInfo()
     {
       for(var i = 0; i < items.length; i++)
       {
-        updateOneItem(items[i])
+        updateOneItem(items[i], i)
       }
     }
   });
 }
 
 
-function updateOneItem(item)
+function updateOneItem(item, i)
 {
   var url = item.url;
   if(isValidURL(url))
@@ -302,13 +303,20 @@ function updateOneItem(item)
     priceFind.findItemDetails(url, async function(err, itemDetails){
       if(itemDetails!=undefined)
       {
-        console.log("updating " + item.title);
+        
+        console.log(i + " updating " + item.title);
         var id = item.id;
         var newPrice = itemDetails.price;
-        var newPriceInfo = {price:newPrice, date:Date().toString()}
+        
+        if(newPrice>=0)
+        {
+          var newPriceInfo = {price:newPrice, date:Date().toString()}
 
-        await Item.updateOne({_id:id}, {$push: {price_hist: newPriceInfo}}, {current_price:newPrice})
+          await Item.updateOne({_id:id}, {$push: {price_hist: newPriceInfo}, current_price: newPrice})
+   
+        }
       }
+        
     })
   }
 }
