@@ -166,6 +166,12 @@ router.post("/update/", authCheck, ownerCheck, (req, res) => {
   var usersList = [];
   if (sharedUsers !== "") {
     usersList = sharedUsers.trim().split(",");
+
+    // When submitting the form without any changes the string will split on the comma
+    // and add another element to the memberList array
+    if (usersList[usersList.length - 1] === "") {
+      usersList.pop();
+    }
   }
 
   Wishlist.findById(wishlistID).then(async wishlist => {
@@ -186,7 +192,7 @@ router.post("/update/", authCheck, ownerCheck, (req, res) => {
       });
 
       if (newInvites.length > 0) {
-        sendNotification(newInvites, fullname, wishlistID, wishlist.name);
+        // sendNotification(newInvites, fullname, wishlistID, wishlist.name);
       }
 
       if (visibility != undefined && visibility != wishlist.visibility) {
@@ -261,10 +267,17 @@ router.get("/", authCheck, (req, res) => {
         wishlists: wishlists
       });
     } else {
+      const sharedLists = wishlists.filter(
+        list => list.owner !== req.session.passport.user.email
+      );
+      const myLists = wishlists.filter(
+        list => list.owner === req.session.passport.user.email
+      );
       res.render("pages/wishlist/listWishlist", {
         user: req.session.passport.user,
         msg: "",
-        wishlists: wishlists
+        sharedLists,
+        myLists
       });
     }
   });

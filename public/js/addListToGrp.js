@@ -10,9 +10,7 @@ $(document).ready(function() {
       success: function(data) {
         $(".submit-list").attr("id", id);
         $("#wishlists").empty();
-        $("#wishlists").append(
-          " <option selected disabled>Select a wishlist</option>"
-        );
+        $("#wishlists").append(' <option value="none" selected >None</option>');
 
         data.results.forEach(function(list) {
           if (list._id === data.currentList) {

@@ -320,6 +320,8 @@ router.post("/addlist", async (req, res) => {
       );
     }
 
+    if (wishlistID === "none") return res.json({ status: 0 });
+
     // Add the group to the wishlist
     await Wishlist.updateOne(
       { _id: wishlistID },

@@ -37,7 +37,6 @@
                 </thead>
                 <tbody>
                     <% myGrps.forEach(group => { %>
-                    <% if (group.admin === user.email) { %>
                     <tr>
                         <td width="35%"><a href="/group/view/<%= group.id%>"><%= group.name %></a></td>
                         <td width="35%"><%= group.admin %></td>
@@ -47,7 +46,6 @@
                         <td><a class="btn btn-info" href="/group/manage/?groupID=<%= group._id %>"><i
                                     class="fas fa-edit"></i></a></td>
                     </tr>
-                    <% } %>
                     <% }); %>
                 </tbody>
             </table>
@@ -69,7 +67,6 @@
                 </thead>
                 <tbody>
                     <% sharedGrps.forEach(group => { %>
-                    <% if (group.admin !== user.email) { %>
                     <tr>
                         <td width="35%"><a href="/group/view/<%= group.id%>"><%= group.name %></a></td>
                         <td width="35%"><%= group.admin %></td>
@@ -80,7 +77,6 @@
                                 data-target="#leaveModal" id="<%= group.id %>"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
-                    <% } %>
                     <% }); %>
                 </tbody>
             </table>
