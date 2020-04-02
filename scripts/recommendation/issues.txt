@@ -1,0 +1,8 @@
+1.Unhandled rejection TimeoutError: Client did not get response within 1000 ms
+I'm sure if this is my side or server side issue. 
+
+2. Unhandled rejection ResponseError: 404 - {"message":"User \"5\" does not exist!"}
+The recommendations are based on labels of items, no users involved. 
+
+3. Unhandled rejection ResponseError: 409 - {"message":"item\"5e82e8022a474f20516b74f3\" already exists!"}
+The Recombee DB already have items. Every time you run the code, the code will add items to DB once. 
