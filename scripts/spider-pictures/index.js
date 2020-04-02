@@ -39,13 +39,23 @@ const getImageSrc = async page => {
   $(".imgTagWrapper")
     .find("img")
     .each((index, item) => {
-      const urls = item.attribs["data-a-dynamic-image"];
+      let urls = item.attribs["data-a-dynamic-image"];
       if (urls != undefined) {
         for (let key in JSON.parse(urls)) {
           imageSrcArr.push(key);
         }
       }
     });
+
+  // Try to look in another spot (Books)
+  if (imageSrcArr.length <= 0) {
+    let urls = $("#imgBlkFront").attr("data-a-dynamic-image");
+    if (urls != undefined) {
+      for (let key in JSON.parse(urls)) {
+        imageSrcArr.push(key);
+      }
+    }
+  }
   return imageSrcArr;
 };
 
