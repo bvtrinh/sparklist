@@ -296,7 +296,6 @@ router.get("/view/", authCheck, accessCheck, async (req, res) => {
   const wishlist = await Wishlist.findById(wishlistID).populate(
     "items.item_id"
   );
-
   return res.render("pages/wishlist/viewWishlist", {
     errors,
     wishlist,
