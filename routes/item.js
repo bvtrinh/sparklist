@@ -456,4 +456,80 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+
+
+router.post("/priceHistory", async (req, res) => {
+  const groupID = req.body.groupID;
+  const itemID = req.body.itemID;
+
+  const results = await Item.findById(itemID);
+
+  res.json({results});
+
+
+
+ 
+});
+
+var interval = 86400000
+setInterval(() => {
+  updatePriceInfo();
+}, interval);
+
+
+function updatePriceInfo()
+{
+
+  console.log("starting update");
+  Item.find().then(items=> {
+    if(items)
+    {
+      for(var i = 0; i < items.length; i++)
+      {
+        updateOneItem(items[i], i)
+      }
+    }
+  });
+}
+
+
+function updateOneItem(item, i)
+{
+  var url = item.url;
+  if(isValidURL(url))
+  {
+    priceFind.findItemDetails(url, async function(err, itemDetails){
+      if(itemDetails!=undefined)
+      {
+        
+        console.log(i + " updating " + item.title);
+        var id = item.id;
+        var newPrice = itemDetails.price;
+        
+        if(newPrice>=0)
+        {
+          var newPriceInfo = {price:newPrice, date:Date().toString()}
+
+          await Item.updateOne({_id:id}, {$push: {price_hist: newPriceInfo}, current_price: newPrice})
+   
+        }
+      }
+        
+    })
+  }
+}
+
+
+function isValidURL(url)
+{
+  if(url.includes("amazon")||url.includes("steam"))
+  {
+    return true;
+  }
+
+  else{
+    return false;
+  }
+}
+
 module.exports = router;
