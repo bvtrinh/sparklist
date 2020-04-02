@@ -23,9 +23,11 @@ const wishlist_schema = new Schema({
   ],
   items: [
     {
-      type: Schema.Types.ObjectId,
-      ref: "Item",
-      require: false
+      item_id: {
+        type: Schema.Types.ObjectId,
+        ref: "item"
+      },
+      notify_price: { type: Number, require: false }
     }
   ],
   groups: [{ type: Schema.Types.ObjectId, ref: "group" }],
