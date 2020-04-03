@@ -469,19 +469,22 @@ router.post("/find", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
-  const item = await Item.findById(req.params.id);
+  const item = await Item.findById(req.params.id).populate("recommendations");
+  const recomms = item.recommendations;
   if (req.isAuthenticated()) {
     const lists = await Wishlist.find({
       owner: req.session.passport.user.email
     });
     return res.render("pages/item/viewItem", {
       user: req.session.passport.user,
+      recomms,
       item,
       lists
     });
   } else {
     return res.render("pages/item/viewItem", {
       user: undefined,
+      recomms,
       item
     });
   }
