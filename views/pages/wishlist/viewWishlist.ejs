@@ -23,15 +23,18 @@
       <% wishlistItems.forEach(itemObj => { var item = itemObj.item_id; %>
       <div class="col mb-2">
         <div class="card h-100 pt-3 shadow">
+          <% if (user.email === wishlist.owner) { %>
           <div align="right" class="pull-right">
             <form action="/wishlist/deleteItem/<%= wishlist._id %>/<%= item._id %>" method="POST">
               <button type="submit" class="btn btn-danger delete-btn">X</button>
             </form>
           </div>
+          <% } %>
           <img src="<%= item.img_url %>" class="card-img-top" alt="...">
           <div class="card-body">
             <h5 class="card-title"><a href="/item/<%= item._id%>"><%= item.title %></a></h5>
             <p class="card-text">$<%= item.price_hist[item.price_hist.length - 1].price %></p>
+            <% if (user.email === wishlist.owner) { %>
             <form action="/wishlist/set-notify-price" method="POST">
               <label for="notifyPrice">Notify Price</label>
               <div class="row input-group">
@@ -45,6 +48,7 @@
                 </div>
               </div>
             </form>
+            <% } %>
           </div>
         </div>
       </div>
