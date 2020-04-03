@@ -72,38 +72,63 @@ router.post("/process", (req, res) => {
   });
 });
 
-router.get("/search", async (req, res) => {
+router.get("/search/:page", async (req, res) => {
+  var perPage = 12;
+  var page = req.params.page || 1;
   const user = getUserInfo(req);
-  Item.find().then(items => {
-    res.render("pages/item/search", {
-      user,
-      items,
-      sorts,
-      sort_type: null
-    });
-  });
-});
 
-router.post("/search", async (req, res) => {
+
+  Item.find()
+      .skip((perPage * page) - perPage)
+      .limit(perPage)
+      .exec(function(err, items) {
+          Item.countDocuments().exec(function(err, count) {
+              if (err) return next(err)
+              res.render('pages/item/search', {
+                  user,
+                  items,
+                  sorts,
+                  sort_type: null,
+                  current: page,
+                  pages: Math.ceil(count / perPage)
+              })
+          })
+      })
+})
+
+router.post("/search/:page", async (req, res) => {
   const { keyword, min_price, max_price, sort_type } = req.body;
-
+  var perPage = 12;
+  var page = req.params.page || 1;
   const user = getUserInfo(req);
   const filters = {
     title: new RegExp(keyword, "i"),
     current_price: { $lte: max_price, $gte: min_price }
   };
   try {
-    const items = await Item.find(filters).sort(sort_type);
-    if (items.length <= 0) throw "No search results found";
-    return res.render("pages/item/search", {
-      user,
-      items,
-      keyword,
-      min_price,
-      max_price,
-      sort_type,
-      sorts
-    });
+    Item.find(filters)
+      .skip((perPage * page) - perPage)
+      .limit(perPage)
+      .sort(sort_type)
+      .exec(function(err, items) {
+          Item.countDocuments().exec(function(err, count) {
+              if (err) return next(err)
+              if (items.length <= 0) throw "No search results found";
+              res.render('pages/item/search', {
+                  user,
+                  items,
+                  keyword,
+                  min_price,
+                  max_price,
+                  sort_type,
+                  sorts,
+                  current: page,
+                  pages: Math.ceil(count / perPage)
+              })
+          })
+      })
+
+
   } catch (err) {
     return res.render("pages/item/search", {
       keyword,
