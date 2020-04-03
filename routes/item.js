@@ -125,6 +125,7 @@ router.get("/search", async (req, res) => {
       items,
       sorts,
       categoryKeys,
+      curr_category: null,
       sort_type: null
     });
   });
