@@ -15,7 +15,7 @@ const success = chalk.keyword("green");
 
 // Dropdown for sorting type
 const sorts = [
-  ["count", "Popular"],
+  ["-count", "Popular"],
   ["current_price", "Price: Low to High"],
   ["-current_price", "Price: High to Low"],
   ["title", "Name: A to Z"],
@@ -74,61 +74,91 @@ router.post("/process", (req, res) => {
 
 router.get("/search/:page", async (req, res) => {
   var perPage = 12;
-  var page = req.params.page || 1;
+  var page = req.params.page == 0 ? 1 : req.params.page;
   const user = getUserInfo(req);
+  var searchParams;
+  var isSearch = false;
 
+  if (req.params.page == 0) {
+    delete req.session.search;
+    console.log("deleted session");
+  }
 
-  Item.find()
-      .skip((perPage * page) - perPage)
-      .limit(perPage)
-      .exec(function(err, items) {
-          Item.countDocuments().exec(function(err, count) {
-              if (err) return next(err)
-              res.render('pages/item/search', {
-                  user,
-                  items,
-                  sorts,
-                  sort_type: null,
-                  current: page,
-                  pages: Math.ceil(count / perPage)
-              })
-          })
-      })
-})
+  if (req.session.search) {
+    isSearch = true;
+    searchParams = req.session.search;
+    searchParams.filters.title = new RegExp(searchParams.keyword, "i");
+  }
+
+  Item.find(isSearch ? searchParams.filters : {})
+    .skip(perPage * page - perPage)
+    .limit(perPage)
+    .sort(isSearch ? searchParams.sort_type : "-count")
+    .exec(function(err, items) {
+      Item.countDocuments().exec(function(err, count) {
+        if (err) return next(err);
+
+        res.render("pages/item/search", {
+          user,
+          items,
+          sorts,
+          min_price: isSearch ? searchParams.min_price : 0,
+          max_price: isSearch ? searchParams.max_price : 500,
+          keyword: isSearch ? searchParams.keyword : "",
+          sort_type: isSearch ? searchParams.sort_type : null,
+          current: page,
+          pages: Math.ceil(count / perPage)
+        });
+      });
+    });
+});
 
 router.post("/search/:page", async (req, res) => {
   const { keyword, min_price, max_price, sort_type } = req.body;
   var perPage = 12;
   var page = req.params.page || 1;
+
+  // Delete the previous search filters
+  if (req.session.search) {
+    delete req.session.search;
+  }
   const user = getUserInfo(req);
   const filters = {
     title: new RegExp(keyword, "i"),
     current_price: { $lte: max_price, $gte: min_price }
   };
+
+  // Set the new search filters
+  req.session.search = {
+    keyword,
+    min_price,
+    max_price,
+    sort_type,
+    filters
+  };
+
   try {
     Item.find(filters)
-      .skip((perPage * page) - perPage)
+      .skip(perPage * page - perPage)
       .limit(perPage)
       .sort(sort_type)
       .exec(function(err, items) {
-          Item.countDocuments().exec(function(err, count) {
-              if (err) return next(err)
-              if (items.length <= 0) throw "No search results found";
-              res.render('pages/item/search', {
-                  user,
-                  items,
-                  keyword,
-                  min_price,
-                  max_price,
-                  sort_type,
-                  sorts,
-                  current: page,
-                  pages: Math.ceil(count / perPage)
-              })
-          })
-      })
-
-
+        Item.countDocuments().exec(function(err, count) {
+          if (err) return next(err);
+          if (items.length <= 0) throw "No search results found";
+          res.render("pages/item/search", {
+            user,
+            items,
+            keyword,
+            min_price,
+            max_price,
+            sort_type,
+            sorts,
+            current: page,
+            pages: Math.ceil(count / perPage)
+          });
+        });
+      });
   } catch (err) {
     return res.render("pages/item/search", {
       keyword,
@@ -283,19 +313,13 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-
-
 router.post("/priceHistory", async (req, res) => {
   const groupID = req.body.groupID;
   const itemID = req.body.itemID;
 
   const results = await Item.findById(itemID);
 
-  res.json({results});
-
-
- 
+  res.json({ results });
 });
-
 
 module.exports = router;
