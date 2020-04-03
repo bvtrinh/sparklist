@@ -18,7 +18,7 @@ const success = chalk.keyword("green");
 
 // Dropdown for sorting type
 const sorts = [
-  ["count", "Popular"],
+  ["-count", "Popular"],
   ["current_price", "Price: Low to High"],
   ["-current_price", "Price: High to Low"],
   ["title", "Name: A to Z"],
@@ -119,16 +119,18 @@ router.get("/add", authCheck, (req, res) => {
 
 router.get("/search", async (req, res) => {
   const user = getUserInfo(req);
-  Item.find().then(items => {
-    res.render("pages/item/search", {
-      user,
-      items,
-      sorts,
-      categoryKeys,
-      curr_category: null,
-      sort_type: null
+  Item.find()
+    .sort("-count")
+    .then(items => {
+      res.render("pages/item/search", {
+        user,
+        items,
+        sorts,
+        categoryKeys,
+        curr_category: null,
+        sort_type: null
+      });
     });
-  });
 });
 
 router.post("/search", async (req, res) => {

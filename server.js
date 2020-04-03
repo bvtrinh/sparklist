@@ -88,7 +88,7 @@ const authCheck = (req, res, next) => {
 app.get("/", (req, res) => {
   const user = req.isAuthenticated() ? req.session.passport.user : undefined;
   Item.find()
-    .sort({ title: 1 })
+    .sort({ count: -1 })
     .limit(4)
     .then(items => {
       return res.render("pages/home", {
@@ -110,7 +110,6 @@ console.log("Running on " + process.env.NODE_ENV);
 const port = process.env.PORT || 5000;
 
 app.listen(port, () => console.log(`Server started on port ${port}`));
-
 
 // var interval = 30000
 // setInterval(() => {
