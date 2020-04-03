@@ -6,3 +6,7 @@
 #slider-range .ui-slider-range {
   background: #007bff;
 }
+
+.pagination {
+  margin: auto;
+}

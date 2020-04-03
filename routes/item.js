@@ -108,6 +108,17 @@ async function getCategory(labels, category = "Other") {
   return maxTerm;
 }
 
+async function getMaxPrice() {
+  const item = await Item.find()
+    .sort("-current_price")
+    .limit(1);
+  return item[0].current_price;
+}
+
+router.get("/max-price", async (req, res) => {
+  return res.json({ max_price: await getMaxPrice() });
+});
+
 router.get("/add", authCheck, (req, res) => {
   if (req.session.errors) {
     var errors = req.session.errors;
@@ -117,50 +128,101 @@ router.get("/add", authCheck, (req, res) => {
   res.render("pages/item/findItem", { user: req.session.passport.user });
 });
 
-router.get("/search", async (req, res) => {
+router.get("/search/:page", async (req, res) => {
+  var perPage = 12;
+  var page = req.params.page == 0 ? 1 : req.params.page;
   const user = getUserInfo(req);
-  Item.find()
-    .sort("-count")
-    .then(items => {
-      res.render("pages/item/search", {
-        user,
-        items,
-        sorts,
-        categoryKeys,
-        curr_category: null,
-        sort_type: null
+  var searchParams;
+  var isSearch = false;
+
+  if (req.params.page == 0) {
+    delete req.session.search;
+  }
+
+  if (req.session.search) {
+    isSearch = true;
+    searchParams = req.session.search;
+    searchParams.filters.title = new RegExp(searchParams.keyword, "i");
+  }
+
+  Item.find(isSearch ? searchParams.filters : {})
+    .skip(perPage * page - perPage)
+    .limit(perPage)
+    .sort(isSearch ? searchParams.sort_type : "-count")
+    .exec(function(err, items) {
+      Item.countDocuments().exec(function(err, count) {
+        if (err) return next(err);
+
+        res.render("pages/item/search", {
+          user,
+          items,
+          sorts,
+          categoryKeys,
+          curr_category: isSearch ? searchParams.curr_category : null,
+          min_price: isSearch ? searchParams.min_price : 0,
+          max_price: isSearch ? searchParams.max_price : 500,
+          keyword: isSearch ? searchParams.keyword : "",
+          sort_type: isSearch ? searchParams.sort_type : null,
+          current: page,
+          pages: Math.ceil(count / perPage)
+        });
       });
     });
 });
 
-router.post("/search", async (req, res) => {
+router.post("/search/:page", async (req, res) => {
   const { keyword, min_price, max_price, sort_type, curr_category } = req.body;
+  var perPage = 12;
+  var page = req.params.page || 1;
 
+  // Delete the previous search filters
+  if (req.session.search) {
+    delete req.session.search;
+  }
   const user = getUserInfo(req);
   // Need to add another filter for category
   let filters = {
     title: new RegExp(keyword, "i"),
     current_price: { $lte: max_price, $gte: min_price }
   };
-
   if (curr_category !== "All") {
     filters.category = curr_category;
   }
 
+  // Set the new search filters
+  req.session.search = {
+    keyword,
+    min_price,
+    max_price,
+    sort_type,
+    curr_category,
+    filters
+  };
+
   try {
-    const items = await Item.find(filters).sort(sort_type);
-    if (items.length <= 0) throw "No search results found";
-    return res.render("pages/item/search", {
-      user,
-      items,
-      keyword,
-      min_price,
-      max_price,
-      sort_type,
-      sorts,
-      categoryKeys,
-      curr_category
-    });
+    Item.find(filters)
+      .skip(perPage * page - perPage)
+      .limit(perPage)
+      .sort(sort_type)
+      .exec(function(err, items) {
+        Item.countDocuments().exec(function(err, count) {
+          if (err) return next(err);
+          res.render("pages/item/search", {
+            user,
+            items,
+            keyword,
+            min_price,
+            max_price,
+            sort_type,
+            sorts,
+            categoryKeys,
+            curr_category,
+            current: page,
+            pages: Math.ceil(count / perPage),
+            err_msg: items.length <= 0 ? "No search results found" : null
+          });
+        });
+      });
   } catch (err) {
     return res.render("pages/item/search", {
       keyword,
