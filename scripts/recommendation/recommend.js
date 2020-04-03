@@ -1,7 +1,7 @@
 "use strict";
 
 const path = require("path");
-require("dotenv").config(path.join(__dirname, "./.env"));
+require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 var recombee = require("recombee-api-client");
 var rqs = recombee.requests;
 var client = new recombee.ApiClient(
@@ -29,9 +29,8 @@ async function addItemToDB() {
   client.send(
     new rqs.Batch([
       new rqs.AddItemProperty("title", "string"),
-      new rqs.AddItemProperty("count", "int"),
       new rqs.AddItemProperty("labels", "set"),
-      new rqs.AddItemProperty("url", "string")
+      new rqs.AddItemProperty("category", "string")
     ])
   );
   const items = await Item.find({});
@@ -42,12 +41,11 @@ async function addItemToDB() {
     var itemId = item._id;
     var obj = {
       labels: item.labels,
-      count: item.count,
       title: item.title,
-      url: item.url
+      category: item.category
     };
     client.send(
-      new rqs.RecommendItemsToItem(itemId, 5, {
+      new rqs.RecommendItemsToItem(itemId, 4, {
         scenario: "ItemRecommendation"
       })
     );
@@ -56,23 +54,45 @@ async function addItemToDB() {
   return client.send(new rqs.Batch(requests));
 }
 
-addItemToDB();
+// addItemToDB();
 
 //  Get recommendations fromm Recombee DB
-async function getRecom() {
+async function getRecom(itemID) {
+  var recommendation = await client.send(
+    new rqs.RecommendItemsToItem(itemID, null, 4, {
+      scenarios: "ItemRecommendation",
+      returnProperties: true
+    })
+  );
+  var recomms = [];
+  recommendation.recomms.forEach(item => {
+    recomms.push(item.id);
+  });
+  return recomms;
+}
+
+async function updateRecomDB() {
+  // Grab all the items from the Sparklist DB
   const items = await Item.find({});
-  items.forEach(item => {
-    var itemId = item._id;
-    client.send(
-      new rqs.RecommendItemsToItem(itemId, null, 5, {
-        scenarios: "ItemRecommendation",
-        returnProperties: true
-      }),
-      (err, recommendations) => {
-        console.log(recommendations.recomms); // This will output titles and urls of recommednded item
-      }
+
+  // Update ALL the items
+  items.forEach(async item => {
+    var recomms = await getRecom(item._id);
+
+    // Update the recommendations for the item
+    await Item.updateOne(
+      { _id: item._id },
+      { $set: { recommendations: recomms } }
     );
   });
 }
 
-getRecom();
+async function test() {
+  try {
+    updateRecomDB();
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+test();
