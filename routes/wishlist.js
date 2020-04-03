@@ -113,6 +113,9 @@ async function addItemToList(req, item_id, list_id) {
     errors.push({ msg: "You've added this item to this wishlist already" });
     req.session.errors = errors;
   } else {
+    // Increment item count
+    await Item.updateOne({ _id: item_id }, { $inc: { count: 1 } });
+
     // Add item to wishlist
     await Wishlist.updateOne(
       { _id: list_id },
