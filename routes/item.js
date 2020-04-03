@@ -6,7 +6,6 @@ const labeler = require("../scripts/vision/labeling");
 const scrape = require("../scripts/spider-pictures");
 const app = require("../scripts/spider-pictures/index.js");
 const PriceFinder = require("price-finder");
-const strCmp = require("../scripts/string-similarity");
 const priceFind = new PriceFinder();
 
 // Item Model
@@ -256,7 +255,7 @@ async function scrapeAmazon(url) {
         title: itemDetails.name,
         price_hist: { price: itemDetails.price, date: Date().toString() },
         current_price: itemDetails.price,
-        category: itemDetails.category,
+        category: await getCategory(labels, itemDetails.category),
         img_url: img_url[0],
         url,
         labels
@@ -366,6 +365,9 @@ async function scrapeGoogleShop(itemName) {
 
       // label item
       items[i].labels = await labelItem(items[i].title);
+
+      // Categorize item
+      items[i].category = await getCategory(items[i].labels);
     }
 
     await browser.close();
@@ -456,10 +458,10 @@ router.post("/priceHistory", async (req, res) => {
   res.json({ results });
 });
 
-var interval = 86400000;
-setInterval(() => {
-  updatePriceInfo();
-}, interval);
+// var interval = 86400000;
+// setInterval(() => {
+//   updatePriceInfo();
+// }, interval);
 
 function updatePriceInfo() {
   console.log("starting update");
