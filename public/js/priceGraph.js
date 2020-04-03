@@ -28,10 +28,13 @@ function prepData(graphData) {
 
     var date = new Date(graphData[i].date);
     var dateString = date.getMonth() + "/" + date.getDate();
+    
 
-    currentData.push(dateString);
-    currentData.push(graphData[i].price);
-    allData.push(currentData);
+    // currentData.push(dateString);
+    // currentData.push(graphData[i].price);
+    // currentData.push(date, graphData[i].price)
+    // allData.push(currentData);
+    allData.push([date, graphData[i].price]);
   }
 
   return allData;
@@ -54,7 +57,7 @@ function drawBasic() {
   graphData = prepData(price_hist);
 
   var data = new google.visualization.DataTable();
-  data.addColumn("string", "Date");
+  data.addColumn("date", "Date");
   data.addColumn("number", "Price");
   data.addRows(graphData);
 
