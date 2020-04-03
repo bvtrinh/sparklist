@@ -49,8 +49,8 @@
       </div>
 
       <div class="col-lg-7">
-        <div class="card price-card h-100 pt-3 shadow" >
-          <h3 class="card-title" >Price History</h3>
+        <div class="card price-card h-100 pt-3 shadow">
+          <h3 class="card-title">Price History</h3>
           <!-- <h2>WIP</h2>
           <img src="/img/price-chart.png" class="card-img-price" alt="..."> -->
 
@@ -108,116 +108,10 @@
 
   </div>
 
-<input type = "hidden", id = "itemID", value = "<%= item._id %>" > 
-
-
+  <input type="hidden" id="itemID" value="<%= item._id %>">
   <%- include ('../../partials/endBody.ejs') %>
+  <script type="text/javascript" src="/js/priceGraph.js"></script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 </body>
 
-
-
-<head>
-  
-  <script type="text/javascript">    
-
-    $(document).ready(function() {
-    const id = $("#itemID").val();
-
-    $.ajax({
-      url: "/item/priceHistory",
-      method: "POST",
-      data: { itemID: id },
-      dataType: "JSON",
-      success: function(data) {graph(data)}
-      });
-    });
-  
-    var itemInfo;
-
-    function graph(data)
-    {
-      itemInfo = data.results;
-      google.charts.load('current', {'packages':['corechart']});
-      google.charts.setOnLoadCallback(drawBasic);
-    }
-    
-    function prepData(graphData)
-    {
-      var allData = [];
-
-      for(var i = 0; i < graphData.length; i++) {
-          var currentData = []
-          
-          var date = new Date(graphData[i].date);
-          var dateString = date.getMonth() + "/" + date.getDate();
-
-          currentData.push(dateString);
-          currentData.push(graphData[i].price);
-          allData.push(currentData);
-      }
-      
-      return allData;
-    }
-
-    function dataMinMax(graphData) {
-      var prices = [];
-      for(var i = 0; i < graphData.length; i++) {
-        prices[i] = graphData[i].price;
-
-      }
-
-      var min = Math.ceil(Math.min.apply(null, prices))-5;
-      var max = Math.ceil(Math.max.apply(null, prices))+5;
-
-      return {min: min, max: max}
-    }
-    
-    function drawBasic() {
-
-      price_hist = itemInfo.price_hist;
-      graphData = prepData(price_hist);
-      
-      var data = new google.visualization.DataTable();
-      data.addColumn('string', 'Date');
-      data.addColumn('number', 'Price');
-      data.addRows(graphData);
-
-      var winMinMax = dataMinMax(price_hist);
-
-      var options = {
-        vAxis: {
-          format: 'currency',
-          gridlines: {
-            count: 10,
-          },
-          viewWindowMode:'explicit',
-          viewWindow:{
-            max: winMinMax.max,
-            min: winMinMax.min
-          }    
-        },
-        legend: {
-          position: 'none'
-        },       
-        series: {
-          0: {
-            type: "steppedArea", 
-            areaOpacity: 0
-          }
-        }
-
-      };
-
-      var chart = new google.visualization.SteppedAreaChart(document.getElementById('chart_div'));
-
-      chart.draw(data, options);
-    }
-
-  </script>
-</head>
-<body>
-  <div id="piechart" style="width: 900px; height: 500px;"></div>
-</body>
-
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 </html>
