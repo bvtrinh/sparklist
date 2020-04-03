@@ -517,25 +517,69 @@ function updatePriceInfo() {
   });
 }
 
-function updateOneItem(item, i) {
+async function scrapeGoogleShopPrice(url) {
+  try {
+    // open the headless browser
+    var browser = await puppeteer.launch({ headless: true });
+
+    // open a new page
+    var page = await browser.newPage();
+
+    // enter url in page
+    await page.goto(url);
+    await page.waitForSelector("span.NVfoXb");
+
+    // change google shopping view
+    var price = await page.evaluate(() => {
+      return document.querySelector(`span.NVfoXb > b`)
+            .innerHTML.trim()
+            .replace("$", "")
+    });
+
+    await browser.close();
+    console.log(success("Browser Closed"));
+    return price;
+  } catch (err) {
+    // Catch and display errors
+    console.log(error(err));
+    await browser.close();
+    console.log(error("Browser Closed"));
+  }
+}
+
+async function updateOneItem(item, i) {
   var url = item.url;
+  // if amazon or steam url
   if (isValidURL(url)) {
     priceFind.findItemDetails(url, async function(err, itemDetails) {
       if (itemDetails != undefined) {
         console.log(i + " updating " + item.title);
-        var id = item.id;
-        var newPrice = itemDetails.price;
+        var new_price = itemDetails.price;
 
-        if (newPrice >= 0) {
-          var newPriceInfo = { price: newPrice, date: Date().toString() };
-
+        if (new_price >= 0) {
+          var new_price_info = { price: new_price, date: Date().toString() };
           await Item.updateOne(
-            { _id: id },
-            { $push: { price_hist: newPriceInfo }, current_price: newPrice }
+            { _id: item.id },
+            { $push: { price_hist: new_price_info }, current_price: new_price }
           );
         }
+
       }
     });
+  } else {
+    // if any other url, item will be searched for on google shopping
+    if (item.price_url != null) {
+      var new_price = await scrapeGoogleShopPrice(item.price_url);
+
+      if (new_price > 0) {
+        var new_price_info = { price: new_price, date: Date().toString() };
+        await Item.updateOne(
+          { _id: item.id },
+          { $push: { price_hist: new_price_info }, current_price: new_price }
+        );
+      }
+
+    }
   }
 }
 
