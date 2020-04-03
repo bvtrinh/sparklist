@@ -295,6 +295,7 @@ async function scrapeAmazon(url) {
         current_price: itemDetails.price,
         category: await getCategory(labels, itemDetails.category),
         img_url: img_url[0],
+        price_url: null,
         url,
         labels
       });
@@ -387,6 +388,7 @@ async function scrapeGoogleShop(itemName) {
             document
               .querySelector(`a.txYPsb.mpeCOc.shntl`)
               .getAttribute("href"),
+          price_url: null,
           img_url: document
             .querySelector(`img.sh-div__image.sh-div__current`)
             .getAttribute("src"),
@@ -400,6 +402,9 @@ async function scrapeGoogleShop(itemName) {
       // get actual link to item and labels
       await page.goto("https://www." + items[i].url);
       items[i].url = await page.url();
+
+      // add price_url
+      items[i].price_url = itemLinks[i];
 
       // label item
       items[i].labels = await labelItem(items[i].title);

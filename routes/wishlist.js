@@ -374,6 +374,7 @@ router.post("/addListScraped", authCheck, async (req, res) => {
     title,
     current_price,
     url,
+    price_url,
     img_url,
     labels,
     list_id,
@@ -392,6 +393,7 @@ router.post("/addListScraped", authCheck, async (req, res) => {
       price_hist: { price: current_price, date: Date().toString() },
       current_price: current_price,
       img_url: img_url,
+      price_url: price_url,
       url: url,
       labels: labelsList,
       category: category
