@@ -41,6 +41,18 @@ const categories = {
   "Video Games": ["Video game software", "Games", "Pc game"]
 };
 
+const categoryKeys = [
+  "All",
+  "Books",
+  "Clothing",
+  "Electronics",
+  "Home and Kitchen",
+  "Movie",
+  "Sports Equipment",
+  "Tools",
+  "Video Games"
+];
+
 const authCheck = (req, res, next) => {
   if (!req.isAuthenticated()) {
     // user not logged in
@@ -112,19 +124,26 @@ router.get("/search", async (req, res) => {
       user,
       items,
       sorts,
+      categoryKeys,
       sort_type: null
     });
   });
 });
 
 router.post("/search", async (req, res) => {
-  const { keyword, min_price, max_price, sort_type } = req.body;
+  const { keyword, min_price, max_price, sort_type, curr_category } = req.body;
 
   const user = getUserInfo(req);
-  const filters = {
+  // Need to add another filter for category
+  let filters = {
     title: new RegExp(keyword, "i"),
     current_price: { $lte: max_price, $gte: min_price }
   };
+
+  if (curr_category !== "All") {
+    filters.category = curr_category;
+  }
+
   try {
     const items = await Item.find(filters).sort(sort_type);
     if (items.length <= 0) throw "No search results found";
@@ -135,7 +154,9 @@ router.post("/search", async (req, res) => {
       min_price,
       max_price,
       sort_type,
-      sorts
+      sorts,
+      categoryKeys,
+      curr_category
     });
   } catch (err) {
     return res.render("pages/item/search", {
@@ -144,6 +165,8 @@ router.post("/search", async (req, res) => {
       max_price,
       sort_type,
       sorts,
+      categoryKeys,
+      curr_category,
       user,
       items: null,
       err_msg: err
