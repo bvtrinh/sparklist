@@ -105,56 +105,6 @@ router.get("/add", authCheck, (req, res) => {
   res.render("pages/item/findItem", { user: req.session.passport.user });
 });
 
-router.post("/process", (req, res) => {
-  const url = req.body.item_url;
-  const list_id = { _id: req.body.list };
-
-  // Pull title, price, image (tentative), labels
-  // Need to pull image before getting labels
-  priceFind.findItemDetails(url, async (err, itemDetails) => {
-    const img_url = await scrape.amazon(url);
-    const labels = await labeler(img_url[0]);
-    var errors = [];
-
-    // Check if item exists in DB: any matching title or url
-    const results = await Item.find({
-      $or: [{ title: itemDetails.name }, { url: url }]
-    });
-
-    if (results.length > 0) {
-      errors.push({ msg: "This item has already been added by another user" });
-      req.session.errors = errors;
-      return res.redirect("/item/add");
-    }
-
-    // Then do a title check with string similiarty
-    const item = await strCmp.test(itemDetails.name);
-    if (item != -1) {
-      errors.push({ msg: "A similar item already exists" });
-      req.session.errors = errors;
-      console.log(item);
-      return res.redirect("/item/add");
-    }
-
-    const newItem = new Item({
-      title: itemDetails.name,
-      price_hist: { price: itemDetails.price, date: Date().toString() },
-      current_price: itemDetails.price,
-      category: await getCategory(labels, itemDetails.getCategory),
-      img_url: img_url[0],
-      url,
-      labels
-    });
-
-    // Add item to wishlist
-    await Wishlist.updateOne(list_id, { $push: { items: newItem._id } });
-
-    // Add item to DB
-    await newItem.save();
-    res.redirect(`/item/${newItem._id}`);
-  });
-});
-
 router.get("/search", async (req, res) => {
   const user = getUserInfo(req);
   Item.find().then(items => {
