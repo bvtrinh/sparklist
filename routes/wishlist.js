@@ -102,6 +102,47 @@ const sendNotification = async (newInvites, fullname, listID, listname) => {
   });
 };
 
+async function addItemToList(req, item_id, list_id) {
+  const itemExists = await Wishlist.find({
+    _id: list_id,
+    "items.item_id": item_id
+  });
+
+  if (itemExists.length > 0) {
+    var errors = [];
+    errors.push({ msg: "You've added this item to this wishlist already" });
+    req.session.errors = errors;
+  } else {
+    // Add item to wishlist
+    await Wishlist.updateOne(
+      { _id: list_id },
+      {
+        $push: { items: { item_id } }
+      }
+    );
+  }
+}
+
+async function checkDuplicates(title, url) {
+  var err_msg;
+  var status = 0;
+
+  // Check if item exists in DB: any matching title or url
+  const result = await Item.findOne({
+    $or: [{ title: title }, { url: url }]
+  });
+
+  if (result) {
+    return {
+      status: -1,
+      err_msg: "This item has already been added by another user",
+      item: result
+    };
+  }
+
+  return { status: 0 };
+}
+
 router.get("/create", authCheck, (req, res) => {
   res.render("pages/wishlist/createWishlist", {
     user: req.session.passport.user
@@ -267,7 +308,8 @@ router.get("/", authCheck, (req, res) => {
       res.render("pages/wishlist/listWishlist", {
         user: req.session.passport.user,
         msg: "You do not have any wishlists.",
-        wishlists: wishlists
+        myLists: [],
+        sharedLists: []
       });
     } else {
       const sharedLists = wishlists.filter(
@@ -318,50 +360,53 @@ router.get("/view/", authCheck, accessCheck, async (req, res) => {
 });
 
 router.post("/addlist", authCheck, async (req, res) => {
-  const item_id = req.body.id;
-  const list_id = req.body.list;
-
-  const itemExists = await Wishlist.find({
-    _id: list_id,
-    "items.item_id": item_id
-  });
-
-  if (itemExists.length > 0) {
-    var errors = [];
-    errors.push({ msg: "You've add this item to this wishlist already" });
-    req.session.errors = errors;
-  } else {
-    // Add item to wishlist
-    const result = await Wishlist.updateOne(
-      { _id: list_id },
-      {
-        $push: { items: { item_id } }
-      }
-    );
-  }
+  await addItemToList(req, req.body.id, req.body.list);
 
   // Redirect to wishlist view
   return res.redirect(`/wishlist/view/?wishlistID=${req.body.list}`);
 });
 
 router.post("/addListScraped", authCheck, async (req, res) => {
-  const {title, current_price, url, img_url, labels, list_id} = req.body;
+  const {
+    title,
+    current_price,
+    url,
+    img_url,
+    labels,
+    list_id,
+    category
+  } = req.body;
 
-  var labelsList = labels.split(',');
+  // Check if the item has been added to the DB
+  const isDuplicate = await checkDuplicates(title, url);
 
-  // add item to items collections
-  new Item({
-    title: title,
-    price_hist: { price: current_price, date: Date().toString() },
-    current_price: current_price,
-    img_url: img_url,
-    url: url,
-    labels: labelsList
-  }).save().then(async(item) => {
-    await Wishlist.updateOne( {_id: list_id}, { $addToSet: { items: item._id } });
-    // Redirect to wishlist view
-    return res.redirect(`/wishlist/view/?wishlistID=${list_id}`);
-  });
+  // No duplicate exists in the DB
+  if (isDuplicate.status === 0) {
+    // Add item to DB
+    var labelsList = labels.split(",");
+    const newItem = new Item({
+      title: title,
+      price_hist: { price: current_price, date: Date().toString() },
+      current_price: current_price,
+      img_url: img_url,
+      url: url,
+      labels: labelsList,
+      category: category
+    });
+    const savedItem = await newItem.save();
+    await addItemToList(req, savedItem._id, list_id);
+  }
+  // Duplicate exists in the DB
+  else {
+    // Add that item instead
+    const savedItem = isDuplicate.item;
+
+    // Now make sure that the item isn't already in the wishlist
+    await addItemToList(req, savedItem._id, list_id);
+  }
+
+  // Redirect to wishlist view
+  return res.redirect(`/wishlist/view/?wishlistID=${list_id}`);
 });
 
 router.post(

@@ -22,7 +22,7 @@
                 Wishlist</button></a>
         <hr class="my-4">
 
-        <% if (myLists.length > 0) { %>
+        <% if (myLists && myLists.length > 0) { %>
         <h2>My Wishlists</h2>
         <div class="table-responsive">
             <table class="table">
@@ -49,7 +49,7 @@
         </div>
         <% } %>
 
-        <% if (sharedLists.length > 0) { %>
+        <% if (sharedLists && sharedLists.length > 0) { %>
         <h2 class="mt-5">Shared Lists</h2>
         <div class="table-responsive">
             <table class="table">
