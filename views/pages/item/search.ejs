@@ -40,10 +40,10 @@
             </div>
             <div class="row mb-2 align-bottom">
                 <div class="py-2">Price: $</div>
-                <input type="number" min="0" class="form-control range-price" name="min_price" id="min-price"
+                <input type="number" class="form-control range-price" name="min_price" id="min-price"
                     value="<%= typeof min_price !== 'undefined' ? min_price : 0 %>">
                 <div class="py-2">&nbsp - $</div>
-                <input type="number" max="500" class="form-control range-price" name="max_price" id="max-price"
+                <input type="number" class="form-control range-price" name="max_price" id="max-price"
                     value="<%= typeof max_price !== 'undefined' ? max_price : 500 %>">
             </div>
             <div class="row justify-content-between">
@@ -61,50 +61,50 @@
         </form>
         <hr class="my-4">
 
-        <% if (items) { %> 
+        <% if (items) { %>
         <div align="center" class="card-deck row row-cols-lg-4 row-cols-md-2">
-        <% items.forEach(function(item) { %>
-        <div class="col mb-5">
-            <div class="card h-100 pt-3 shadow">
-                <img src="<%= item.img_url %>" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title"><a href="/item/<%= item.id %>"><%= item.title %></a></h5>
-                    <p class="card-text">$<%= item.current_price %></p>
+            <% items.forEach(function(item) { %>
+            <div class="col mb-5">
+                <div class="card h-100 pt-3 shadow">
+                    <img src="<%= item.img_url %>" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="/item/<%= item.id %>"><%= item.title %></a></h5>
+                        <p class="card-text">$<%= item.current_price %></p>
+                    </div>
                 </div>
             </div>
-        </div>
-        <% }); %>
+            <% }); %>
         </div> <!-- END CARD DECK -->
 
         <% if (pages > 0) { %>
         <div class="page-links row row-cols-lg-4 row-cols-md-2">
             <ul class="pagination">
                 <% if (current == 1) { %>
-                    <li class="page-item disabled"><a class="page-link">First</a></li>
+                <li class="page-item disabled"><a class="page-link">First</a></li>
                 <% } else { %>
-                    <li class="page-item"><a class="page-link" href="/item/search/1">First</a></li>
+                <li class="page-item"><a class="page-link" href="/item/search/1">First</a></li>
                 <% } %>
 
                 <% var i = (Number(current) > 5 ? Number(current) - 4 : 1) %>
                 <% if (i !== 1) { %>
-                    <li class="page-item disabled"><a class="page-link">...</a></li>
+                <li class="page-item disabled"><a class="page-link">...</a></li>
                 <% } %>
 
                 <% for (; i <= (Number(current) + 4) && i <= pages; i++) { %>
-                    <% if (i == current) { %>
-                        <li class="page-item active"><a class="page-link"><%= i %></a></li>
-                    <% } else { %>
-                        <li class="page-item"><a class="page-link" href="/item/search/<%= i %>"><%= i %></a></li>
-                    <% } %>
-                    <% if (i == Number(current) + 4 && i < pages) { %>
-                        <li class="page-item disabled"><a class="page-link">...</a></li>
-                    <% } %>
-                <% } %>
-                
-                <% if (current == pages) { %>
-                    <li class="page-item disabled"><a class="page-link">Last</a></li>
+                <% if (i == current) { %>
+                <li class="page-item active"><a class="page-link"><%= i %></a></li>
                 <% } else { %>
-                    <li class="page-item"><a class="page-link" href="/item/search/<%= pages %>">Last</a></li>
+                <li class="page-item"><a class="page-link" href="/item/search/<%= i %>"><%= i %></a></li>
+                <% } %>
+                <% if (i == Number(current) + 4 && i < pages) { %>
+                <li class="page-item disabled"><a class="page-link">...</a></li>
+                <% } %>
+                <% } %>
+
+                <% if (current == pages) { %>
+                <li class="page-item disabled"><a class="page-link">Last</a></li>
+                <% } else { %>
+                <li class="page-item"><a class="page-link" href="/item/search/<%= pages %>">Last</a></li>
                 <% } %>
             </ul>
         </div>

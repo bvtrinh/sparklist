@@ -36,6 +36,17 @@ const getUserInfo = req => {
   return req.isAuthenticated() ? req.session.passport.user : undefined;
 };
 
+async function getMaxPrice() {
+  const item = await Item.find()
+    .sort("-current_price")
+    .limit(1);
+  return item[0].current_price;
+}
+
+router.get("/max-price", async (req, res) => {
+  return res.json({ max_price: await getMaxPrice() });
+});
+
 router.get("/add", authCheck, async (req, res) => {
   const lists = await Wishlist.find({ owner: req.session.passport.user.email });
   res.render("pages/item/addItem", { user: req.session.passport.user, lists });
@@ -81,7 +92,6 @@ router.get("/search/:page", async (req, res) => {
 
   if (req.params.page == 0) {
     delete req.session.search;
-    console.log("deleted session");
   }
 
   if (req.session.search) {
