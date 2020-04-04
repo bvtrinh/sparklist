@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const tokenfield = require("bootstrap-tokenfield-jquery3");
 const sendEmail = require("../scripts/email/");
+const recom = require("../scripts/recommendation");
 const path = require("path");
 require("dotenv").config(path.join(__dirname, "../.env"));
 
@@ -397,6 +398,11 @@ router.post("/addListScraped", authCheck, async (req, res) => {
       category: category
     });
     const savedItem = await newItem.save();
+
+    // Add to Recombee DB and update recommendation list for item
+    await recom.addRecomDB(savedItem);
+    await recom.updateRecomItem(savedItem._id);
+
     await addItemToList(req, savedItem._id, list_id);
   }
   // Duplicate exists in the DB
