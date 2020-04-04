@@ -22,21 +22,10 @@ function graph(data) {
 
 function prepData(graphData) {
   var allData = [];
-
   for (var i = 0; i < graphData.length; i++) {
-    var currentData = [];
-
     var date = new Date(graphData[i].date);
-    var dateString = date.getMonth() + "/" + date.getDate();
-    
-
-    // currentData.push(dateString);
-    // currentData.push(graphData[i].price);
-    // currentData.push(date, graphData[i].price)
-    // allData.push(currentData);
     allData.push([date, graphData[i].price]);
   }
-
   return allData;
 }
 
@@ -57,13 +46,30 @@ function drawBasic() {
   graphData = prepData(price_hist);
 
   var data = new google.visualization.DataTable();
-  data.addColumn("date", "Date");
+  data.addColumn("datetime", "Date");
   data.addColumn("number", "Price");
   data.addRows(graphData);
+
+  // Create DateFormat with a timezone offset of -4
+  var dateFormat = new google.visualization.DateFormat({
+      pattern: "MMM-dd", 
+      timeZone: -7
+    });
+  dateFormat.format(data, 0);
+
+  // format numbers in second column to 5 decimals
+  var priceFormat = new google.visualization.NumberFormat({
+    prefix: '$'
+  });
+
+  priceFormat.format(data, 1);
 
   var winMinMax = dataMinMax(price_hist);
 
   var options = {
+    hAxis: {
+      format: "MMM-dd"
+    },
     vAxis: {
       format: "currency",
       gridlines: {
