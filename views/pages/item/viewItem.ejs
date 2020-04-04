@@ -72,45 +72,17 @@
     <h2>Similar Products</h2>
     <div align="center" class="card-deck row row-cols-lg-4 row-cols-md-2">
 
+      <% recomms.forEach(item => { %>
       <div class="col mb-5">
         <div class="card h-100 pt-3 shadow">
-          <img src="/img/item-placeholder.jpeg" class="card-sim-img" alt="...">
+          <img src="<%= item.img_url %>" class="card-sim-img">
           <div class="card-body">
-            <h5 class="card-title"><a href="#">Product 1</a></h5>
-            <p class="card-text">$9.99</p>
+            <h5 class="card-title"><a href="/item/<%= item._id %>"><%= item.title %></a></h5>
+            <p class="card-text">$<%= item.current_price %></p>
           </div>
         </div>
       </div>
-
-      <div class="col mb-5">
-        <div class="card h-100 pt-3 shadow">
-          <img src="/img/item-placeholder.jpeg" class="card-sim-img" alt="...">
-          <div class="card-body">
-            <h5 class="card-title"><a href="#">Product 2</a></h5>
-            <p class="card-text">$9.99</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="col mb-5">
-        <div class="card h-100 pt-3 shadow">
-          <img src="/img/item-placeholder.jpeg" class="card-sim-img" alt="...">
-          <div class="card-body">
-            <h5 class="card-title"><a href="#">Product 3</a></h5>
-            <p class="card-text">$9.99</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="col mb-5">
-        <div class="card h-100 pt-3 shadow">
-          <img src="/img/item-placeholder.jpeg" class="card-sim-img" alt="...">
-          <div class="card-body">
-            <h5 class="card-title"><a href="#">Product 4</a></h5>
-            <p class="card-text">$9.99</p>
-          </div>
-        </div>
-      </div>
+      <% }); %>
 
     </div>
 

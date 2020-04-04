@@ -14,7 +14,8 @@ const item_schema = new Schema({
     type: Number,
     default: 1
   },
-  category: String
+  category: String,
+  recommendations: [{ type: Schema.Types.ObjectId, ref: "item" }]
 });
 
 module.exports = Item = mongoose.model("item", item_schema);
