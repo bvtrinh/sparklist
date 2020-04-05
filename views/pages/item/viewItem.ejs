@@ -47,12 +47,20 @@
                       </div>
                   </div>
                   <% } %>
+                  
                   <div class="col-lg-4">
                   </div>
                 </div>
 
-              </div>
+                <div class="row">
+                  <div class="labels">
+                    <% item.labels.forEach( label => { %>
+                      <span class="badge badge-pill badge-primary"><%= label %></span>
+                    <% }) %>  
+                  </div>
+                </div>
 
+              </div>
             </div>
             <div class="row">
               <div class="col-lg-8 price-graph">
@@ -64,9 +72,6 @@
           </div>
         </div>
       </div>
-
-
-
     </div>
 
     <h2>Similar Products</h2>
