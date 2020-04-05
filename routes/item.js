@@ -470,7 +470,7 @@ router.post("/find", async (req, res) => {
   }
 
   let err = "";
-  if (items.length == 0) {
+  if (items === undefined || items.length == 0) {
     err = "No items found. Please try again.";
   }
 

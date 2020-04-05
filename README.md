@@ -26,3 +26,6 @@ Often we forget about important events or just don’t know what to get as a gif
 - [GCP](https://cloud.google.com/)
 - [Passportjs](http://www.passportjs.org/)
 - [Mailgun](https://www.mailgun.com//)
+- [Cheerio](https://cheerio.js.org/)
+- [Puppeteer](https://github.com/puppeteer/puppeteer)
+- [Recombee](https://www.recombee.com/)

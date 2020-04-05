@@ -33,10 +33,10 @@ mongoose
   .connect(process.env.MONGOURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true
+    useCreateIndex: true,
   })
   .then(() => console.log("MongoDB Connected..."))
-  .catch(err => console.log(err));
+  .catch((err) => console.log(err));
 
 // Express session
 app.use(
@@ -47,9 +47,9 @@ app.use(
     saveUninitialized: true,
     store: new MongoStore({ mongooseConnection: mongoose.connection }),
     cookie: {
-      maxAge: 24 * 60 * 60 * 1000
+      maxAge: 24 * 60 * 60 * 1000,
     },
-    secret: process.env.SESSION_SECRET
+    secret: process.env.SESSION_SECRET,
   })
 );
 
@@ -90,13 +90,13 @@ app.get("/", (req, res) => {
   Item.find()
     .sort({ count: -1 })
     .limit(4)
-    .then(items => {
+    .then((items) => {
       return res.render("pages/home", {
         user,
-        items
+        items,
       });
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
     });
 });
@@ -110,8 +110,3 @@ console.log("Running on " + process.env.NODE_ENV);
 const port = process.env.PORT || 5000;
 
 app.listen(port, () => console.log(`Server started on port ${port}`));
-
-// var interval = 30000
-// setInterval(() => {
-//   updatePriceInfo();
-// }, interval);
