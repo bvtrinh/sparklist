@@ -17,7 +17,7 @@ const authCheck = (req, res, next) => {
     next();
   }
 };
-const getUserInfo = req => {
+const getUserInfo = (req) => {
   return req.isAuthenticated() ? req.session.passport.user : undefined;
 };
 
@@ -25,12 +25,12 @@ async function removeWishlists(deletedMembers, groupID) {
   const results = await Group.findById(groupID, { wishlists: 1 }).populate({
     path: "wishlists",
     match: { owner: deletedMembers },
-    select: "_id"
+    select: "_id",
   });
   const ids = results.wishlists;
   if (ids.length > 0) {
     var idArr = [];
-    ids.forEach(item => {
+    ids.forEach((item) => {
       idArr.push(item._id);
     });
     const res = await Group.updateOne(
@@ -45,7 +45,7 @@ async function removeGroupFromList(deletedMembers, groupID) {
   // and groups: groupID then remove the group
   const results = await Wishlist.updateMany(
     {
-      owner: { $in: deletedMembers }
+      owner: { $in: deletedMembers },
     },
     { $pull: { groups: groupID } }
   );
@@ -58,7 +58,7 @@ const sendNotification = async (newInvites, fullname, groupname) => {
   const params = {
     fullname,
     groupname,
-    link
+    link,
   };
 
   await sendEmail({
@@ -66,7 +66,7 @@ const sendNotification = async (newInvites, fullname, groupname) => {
     params: params,
     email: newInvites,
     subject: `${fullname} invited you to the group ${groupname}`,
-    from: fullname
+    from: fullname,
   });
 };
 
@@ -95,26 +95,26 @@ router.post("/create", authCheck, (req, res) => {
       errors,
       groupName,
       invites,
-      visibility
+      visibility,
     });
   } else {
     // initial validation passed
     // check if user has group with same name
     Group.find({
       admin: req.session.passport.user.email,
-      name: groupName
-    }).then(group => {
+      name: groupName,
+    }).then((group) => {
       if (group.length != 0) {
         // user already has group with entered name -> error
         errors.push({
           msg:
-            "You already created a group with this name. Please try again with a different name."
+            "You already created a group with this name. Please try again with a different name.",
         });
         res.render("pages/group/createGroup", {
           user,
           errors,
           invites,
-          visibility
+          visibility,
         });
       } else {
         const fullname = `${req.session.passport.user.fname} ${req.session.passport.user.lname}`;
@@ -123,10 +123,10 @@ router.post("/create", authCheck, (req, res) => {
           name: groupName,
           admin: req.session.passport.user.email,
           visibility: visibility,
-          members: invites.trim().split(", ")
+          members: invites.trim().split(", "),
         })
           .save()
-          .then(newGroup => {
+          .then((newGroup) => {
             res.redirect("/group");
           });
       }
@@ -147,7 +147,7 @@ router.post("/update/", authCheck, (req, res) => {
     }
   }
 
-  Group.findById(groupID).then(group => {
+  Group.findById(groupID).then((group) => {
     if (group) {
       if (groupName != group.name) {
         group.name = groupName;
@@ -165,20 +165,20 @@ router.post("/update/", authCheck, (req, res) => {
         group.members = members;
         group.members = [];
 
-        memberList.forEach(function(user, index) {
+        memberList.forEach(function (user, index) {
           group.members.push(user.trim());
         });
 
         const fullname = `${req.session.passport.user.fname} ${req.session.passport.user.lname}`;
         // MemberList contains the newly entered users
         // newMembers contains the diff between newly entered users and the old members
-        var newMembers = memberList.filter(member => {
+        var newMembers = memberList.filter((member) => {
           return !oldMembers.includes(member);
         });
 
         // Contains the members that were removed from the memberList
         // Now deleted their corresponding wishlist
-        var deletedMembers = oldMembers.filter(member => {
+        var deletedMembers = oldMembers.filter((member) => {
           return !memberList.includes(member);
         });
 
@@ -223,30 +223,30 @@ router.get("/", authCheck, (req, res) => {
   Group.find({
     $or: [
       { admin: req.session.passport.user.email },
-      { members: req.session.passport.user.email }
-    ]
-  }).then(groups => {
+      { members: req.session.passport.user.email },
+    ],
+  }).then((groups) => {
     if (groups.length == 0) {
       // user does not belong to any groups
       // add some type of message
-      res.render("pages/group/viewGroup", {
+      res.render("pages/group/listGroup", {
         user: req.session.passport.user,
         msg: "You do not have any groups.",
         sharedGrps: "",
-        myGrps: ""
+        myGrps: "",
       });
     } else {
       const sharedGrps = groups.filter(
-        grp => grp.admin !== req.session.passport.user.email
+        (grp) => grp.admin !== req.session.passport.user.email
       );
       const myGrps = groups.filter(
-        grp => grp.admin === req.session.passport.user.email
+        (grp) => grp.admin === req.session.passport.user.email
       );
       res.render("pages/group/listGroup", {
         user: req.session.passport.user,
         msg: "",
         sharedGrps,
-        myGrps
+        myGrps,
       });
     }
   });
@@ -254,11 +254,11 @@ router.get("/", authCheck, (req, res) => {
 
 router.get("/manage/", authCheck, (req, res) => {
   let groupID = req.query.groupID;
-  Group.findById(groupID).then(group => {
+  Group.findById(groupID).then((group) => {
     if (group) {
       res.render("pages/group/updateGroup", {
         group,
-        user: req.session.passport.user
+        user: req.session.passport.user,
       });
     }
   });
@@ -300,13 +300,13 @@ router.post("/addlist", async (req, res) => {
     const results = await Group.findById(groupID).populate({
       path: "wishlists",
       match: { owner: req.session.passport.user.email },
-      select: "_id"
+      select: "_id",
     });
 
     const ids = results.wishlists;
     if (ids.length > 0) {
       var idArr = [];
-      ids.forEach(async item => {
+      ids.forEach(async (item) => {
         idArr.push(item._id);
       });
       await Group.updateOne(
@@ -326,14 +326,14 @@ router.post("/addlist", async (req, res) => {
     await Wishlist.updateOne(
       { _id: wishlistID },
       {
-        $addToSet: { groups: groupID }
+        $addToSet: { groups: groupID },
       }
     );
     // Add the updated binded wishlist
     await Group.updateOne(
       { _id: groupID },
       {
-        $addToSet: { wishlists: wishlistID }
+        $addToSet: { wishlists: wishlistID },
       }
     );
     return res.json({ status: 0 });
@@ -347,7 +347,7 @@ router.get("/view/:groupID", authCheck, async (req, res) => {
   const group = await Group.findById(groupID).populate("wishlists");
   res.render("pages/group/viewGroup", {
     group,
-    user: req.session.passport.user
+    user: req.session.passport.user,
   });
 });
 
