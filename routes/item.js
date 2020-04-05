@@ -22,7 +22,7 @@ const sorts = [
   ["current_price", "Price: Low to High"],
   ["-current_price", "Price: High to Low"],
   ["title", "Name: A to Z"],
-  ["-title", "Name: Z to A"]
+  ["-title", "Name: Z to A"],
 ];
 
 // Item categories
@@ -33,12 +33,12 @@ const categories = {
   "Home and Kitchen": [
     "Home appliance",
     "Kitchen appliance",
-    "Small appliance"
+    "Small appliance",
   ],
   Movie: ["Movie", "Poster", "Hero"],
   "Sports Equipment": ["Sports equipment", "Sports gear", "Helmet"],
   Tools: ["Tools"],
-  "Video Games": ["Video game software", "Games", "Pc game"]
+  "Video Games": ["Video game software", "Games", "Pc game"],
 };
 
 const categoryKeys = [
@@ -50,7 +50,7 @@ const categoryKeys = [
   "Movie",
   "Sports Equipment",
   "Tools",
-  "Video Games"
+  "Video Games",
 ];
 
 const authCheck = (req, res, next) => {
@@ -63,7 +63,7 @@ const authCheck = (req, res, next) => {
   }
 };
 
-const getUserInfo = req => {
+const getUserInfo = (req) => {
   return req.isAuthenticated() ? req.session.passport.user : undefined;
 };
 
@@ -76,7 +76,7 @@ async function getCategory(labels, category = "Other") {
     Movie: 0,
     "Sports Equipment": 0,
     Tools: 0,
-    "Video Games": 0
+    "Video Games": 0,
   };
 
   // The case where we are using the Amazon Price Finder package
@@ -85,7 +85,7 @@ async function getCategory(labels, category = "Other") {
 
   // Test all categories
   for (let [key, value] of Object.entries(categories)) {
-    let matchedTerms = labels.filter(term => {
+    let matchedTerms = labels.filter((term) => {
       return value.includes(term);
     });
 
@@ -109,9 +109,7 @@ async function getCategory(labels, category = "Other") {
 }
 
 async function getMaxPrice() {
-  const item = await Item.find()
-    .sort("-current_price")
-    .limit(1);
+  const item = await Item.find().sort("-current_price").limit(1);
   return item[0].current_price;
 }
 
@@ -150,8 +148,8 @@ router.get("/search/:page", async (req, res) => {
     .skip(perPage * page - perPage)
     .limit(perPage)
     .sort(isSearch ? searchParams.sort_type : "-count")
-    .exec(function(err, items) {
-      Item.countDocuments().exec(function(err, count) {
+    .exec(function (err, items) {
+      Item.countDocuments().exec(function (err, count) {
         if (err) return next(err);
         res.render("pages/item/search", {
           user,
@@ -164,7 +162,7 @@ router.get("/search/:page", async (req, res) => {
           keyword: isSearch ? searchParams.keyword : "",
           sort_type: isSearch ? searchParams.sort_type : null,
           current: page,
-          pages: Math.ceil(foundItems.length / perPage)
+          pages: Math.ceil(foundItems.length / perPage),
         });
       });
     });
@@ -183,7 +181,7 @@ router.post("/search/:page", async (req, res) => {
   // Need to add another filter for category
   let filters = {
     title: new RegExp(keyword, "i"),
-    current_price: { $lte: max_price, $gte: min_price }
+    current_price: { $lte: max_price, $gte: min_price },
   };
   if (curr_category !== "All") {
     filters.category = curr_category;
@@ -196,7 +194,7 @@ router.post("/search/:page", async (req, res) => {
     max_price,
     sort_type,
     curr_category,
-    filters
+    filters,
   };
 
   try {
@@ -205,8 +203,8 @@ router.post("/search/:page", async (req, res) => {
       .skip(perPage * page - perPage)
       .limit(perPage)
       .sort(sort_type)
-      .exec(function(err, items) {
-        Item.countDocuments().exec(function(err, count) {
+      .exec(function (err, items) {
+        Item.countDocuments().exec(function (err, count) {
           if (err) return next(err);
           res.render("pages/item/search", {
             user,
@@ -220,7 +218,7 @@ router.post("/search/:page", async (req, res) => {
             curr_category,
             current: page,
             pages: Math.ceil(foundItems.length / perPage),
-            err_msg: items.length <= 0 ? "No search results found" : null
+            err_msg: items.length <= 0 ? "No search results found" : null,
           });
         });
       });
@@ -235,7 +233,7 @@ router.post("/search/:page", async (req, res) => {
       curr_category,
       user,
       items: null,
-      err_msg: err
+      err_msg: err,
     });
   }
 });
@@ -245,7 +243,7 @@ router.post("/homeSearch", async (req, res) => {
 
   const user = getUserInfo(req);
   const filters = {
-    title: new RegExp(keyword, "i")
+    title: new RegExp(keyword, "i"),
   };
   try {
     const items = await Item.find(filters);
@@ -255,7 +253,7 @@ router.post("/homeSearch", async (req, res) => {
       items,
       keyword,
       sort_type: null,
-      sorts
+      sorts,
     });
   } catch (err) {
     return res.render("pages/item/search", {
@@ -264,13 +262,13 @@ router.post("/homeSearch", async (req, res) => {
       sorts,
       user,
       items: null,
-      err_msg: err
+      err_msg: err,
     });
   }
 });
 
 async function labelItem(itemName) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     // get image of item
     gis(itemName, (error, results) => {
       if (error) {
@@ -285,7 +283,7 @@ async function labelItem(itemName) {
 }
 
 async function scrapeAmazon(url) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     priceFind.findItemDetails(url, async (err, itemDetails) => {
       const img_url = await scrape.amazon(url);
       const labels = await labeler(img_url[0]);
@@ -298,7 +296,7 @@ async function scrapeAmazon(url) {
         img_url: img_url[0],
         price_url: null,
         url,
-        labels
+        labels,
       });
       resolve(item);
     });
@@ -308,13 +306,17 @@ async function scrapeAmazon(url) {
 async function scrapeGoogleShop(itemName) {
   try {
     // open the headless browser
-    var browser = await puppeteer.launch({ headless: true });
+    var browser = await puppeteer.launch({
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
 
     // open a new page
     var page = await browser.newPage();
 
     // enter url in page
     await page.goto(`https://shopping.google.com/`);
+    await page.waitForSelector("input.lst");
     await page.type("input.lst", itemName);
     page.keyboard.press("Enter");
     await page.waitForSelector("span.qa708e");
@@ -369,7 +371,7 @@ async function scrapeGoogleShop(itemName) {
         "span.BvQan.sh-t__title-pdp.sh-t__title.translate-content"
       );
 
-      items[i] = await page.evaluate(i => {
+      items[i] = await page.evaluate((i) => {
         item = {
           title: document
             .querySelector(
@@ -378,7 +380,7 @@ async function scrapeGoogleShop(itemName) {
             .innerHTML.trim(),
           price_hist: {
             price: document.querySelector(`span.NVfoXb > b`),
-            date: Date().toString()
+            date: Date().toString(),
           },
           current_price: document
             .querySelector(`span.NVfoXb > b`)
@@ -393,7 +395,7 @@ async function scrapeGoogleShop(itemName) {
           img_url: document
             .querySelector(`img.sh-div__image.sh-div__current`)
             .getAttribute("src"),
-          labels: null
+          labels: null,
         };
         return item;
       });
@@ -457,19 +459,19 @@ router.post("/find", async (req, res) => {
 
   if (req.session.passport.user) {
     const lists = await Wishlist.find({
-      owner: req.session.passport.user.email
+      owner: req.session.passport.user.email,
     });
     return res.render("pages/item/searchResults", {
       user: req.session.passport.user,
       items,
       lists,
-      err_msg: err
+      err_msg: err,
     });
   } else {
     return res.render("pages/item/searchResults", {
       user: req.session.passport.user,
       items,
-      err_msg: err
+      err_msg: err,
     });
   }
 });
@@ -479,19 +481,19 @@ router.get("/:id", async (req, res) => {
   const recomms = item.recommendations;
   if (req.isAuthenticated()) {
     const lists = await Wishlist.find({
-      owner: req.session.passport.user.email
+      owner: req.session.passport.user.email,
     });
     return res.render("pages/item/viewItem", {
       user: req.session.passport.user,
       recomms,
       item,
-      lists
+      lists,
     });
   } else {
     return res.render("pages/item/viewItem", {
       user: undefined,
       recomms,
-      item
+      item,
     });
   }
 });
@@ -504,7 +506,5 @@ router.post("/priceHistory", async (req, res) => {
 
   res.json({ results });
 });
-
-
 
 module.exports = router;
