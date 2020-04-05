@@ -19,7 +19,7 @@
         <h2 class='my-4'>Search</h2>
         <hr class="my-4">
 
-        <% if (items.length > 0) { %>
+        <% if (items !== undefined && items.length > 0) { %>
         <div align="center" class="card-deck row row-cols-lg-4 row-cols-md-2">
 
             <% items.forEach(function(item, i) { %>
