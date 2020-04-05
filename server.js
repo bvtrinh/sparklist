@@ -7,6 +7,7 @@ const passport = require("passport");
 const passportSetup = require("./config/passport-setup");
 const flash = require("connect-flash");
 const path = require("path");
+const cors = require("cors");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 // Models for featured items
@@ -25,6 +26,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors());
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
