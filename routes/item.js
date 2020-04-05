@@ -7,6 +7,7 @@ const scrape = require("../scripts/spider-pictures");
 const app = require("../scripts/spider-pictures/index.js");
 const PriceFinder = require("price-finder");
 const priceFind = new PriceFinder();
+const path = require("path");
 
 // Item Model
 const Item = require("../models/Item");
@@ -315,7 +316,11 @@ async function scrapeGoogleShop(itemName) {
     var page = await browser.newPage();
 
     // enter url in page
-    await page.goto(`https://shopping.google.com/`);
+    await page.goto(`https://google.com/shopping?nord=1`);
+
+    // Testing on prod servers
+    // console.log(await page.url());
+
     await page.waitForSelector("input.lst");
     await page.type("input.lst", itemName);
     page.keyboard.press("Enter");
@@ -371,55 +376,67 @@ async function scrapeGoogleShop(itemName) {
         "span.BvQan.sh-t__title-pdp.sh-t__title.translate-content"
       );
 
+      // Testing on prod servers
+      // await page.screenshot({
+      //   path: path.join(__dirname, `../public/img/${i}.png`),
+      // });
+
       items[i] = await page.evaluate((i) => {
-        item = {
-          title: document
-            .querySelector(
-              `span.BvQan.sh-t__title-pdp.sh-t__title.translate-content`
-            )
-            .innerHTML.trim(),
-          price_hist: {
-            price: document.querySelector(`span.NVfoXb > b`),
-            date: Date().toString(),
-          },
-          current_price: document
-            .querySelector(`span.NVfoXb > b`)
-            .innerHTML.trim()
-            .replace("$", ""),
-          url:
-            "google.com" +
-            document
-              .querySelector(`a.txYPsb.mpeCOc.shntl`)
-              .getAttribute("href"),
-          price_url: null,
-          img_url: document
-            .querySelector(`img.sh-div__image.sh-div__current`)
-            .getAttribute("src"),
-          labels: null,
-        };
-        return item;
+        var priceSelector = document.querySelector("span.NVfoXb > b");
+        if (!document.querySelector("span.WBDTRb")) {
+          item = {
+            title: document
+              .querySelector(
+                `span.BvQan.sh-t__title-pdp.sh-t__title.translate-content`
+              )
+              .innerHTML.trim(),
+            price_hist: {
+              price: priceSelector,
+              date: Date().toString(),
+            },
+            current_price: priceSelector.innerHTML.trim().replace("$", ""),
+            url:
+              "google.com" +
+              document
+                .querySelector(`a.txYPsb.mpeCOc.shntl`)
+                .getAttribute("href"),
+            price_url: null,
+            img_url: document
+              .querySelector(`img.sh-div__image.sh-div__current`)
+              .getAttribute("src"),
+            labels: null,
+          };
+          return item;
+        }
       });
     }
 
-    for (var i = 0; i < items.length; i++) {
+    var validItems = [];
+    items.forEach(async (item, i) => {
+      if (item !== undefined) {
+        validItems.push(item);
+      }
+    });
+
+    for (var i = 0; i < validItems.length; i++) {
       // get actual link to item and labels
-      await page.goto("https://www." + items[i].url);
-      items[i].url = await page.url();
+      await page.goto("https://www." + validItems[i].url);
+      validItems[i].url = await page.url();
 
       // add price_url
-      items[i].price_url = itemLinks[i];
+      validItems[i].price_url = itemLinks[i];
 
       // label item
-      items[i].labels = await labelItem(items[i].title);
+      validItems[i].labels = await labelItem(validItems[i].title);
 
       // Categorize item
-      items[i].category = await getCategory(items[i].labels);
+      validItems[i].category = await getCategory(validItems[i].labels);
     }
 
     await browser.close();
     console.log(success("Browser Closed"));
 
-    return items;
+    return validItems;
   } catch (err) {
     // Catch and display errors
     console.log(error(err));
