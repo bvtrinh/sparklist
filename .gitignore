@@ -19,3 +19,7 @@ cluster-setup/
 
 # Nginx
 nginx/
+
+
+# DB updates
+db-updates/

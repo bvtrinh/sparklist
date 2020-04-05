@@ -12,10 +12,10 @@ const item_schema = new Schema({
   price_hist: [{ price: Number, date: Date }],
   count: {
     type: Number,
-    default: 1
+    default: 0,
   },
   category: String,
-  recommendations: [{ type: Schema.Types.ObjectId, ref: "item" }]
+  recommendations: [{ type: Schema.Types.ObjectId, ref: "item" }],
 });
 
 module.exports = Item = mongoose.model("item", item_schema);

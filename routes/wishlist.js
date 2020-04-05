@@ -21,7 +21,7 @@ const authCheck = (req, res, next) => {
   }
 };
 
-const getUserInfo = req => {
+const getUserInfo = (req) => {
   return req.isAuthenticated() ? req.session.passport.user : undefined;
 };
 
@@ -31,9 +31,9 @@ const ownerCheck = async (req, res, next) => {
       { owner: req.session.passport.user.email },
       {
         _id:
-          req.query.wishlistID || req.params.wishlistID || req.body.wishlistID
-      }
-    ]
+          req.query.wishlistID || req.params.wishlistID || req.body.wishlistID,
+      },
+    ],
   });
 
   if (results) {
@@ -50,20 +50,20 @@ const accessCheck = async (req, res, next) => {
   const shared = await Wishlist.findOne({
     $and: [
       { _id: req.query.wishlistID || req.params.wishlistID },
-      { sharedUsers: req.session.passport.user.email }
-    ]
+      { sharedUsers: req.session.passport.user.email },
+    ],
   });
 
   const owner = await Wishlist.findOne({
     $and: [
       { owner: req.session.passport.user.email },
-      { _id: req.query.wishlistID || req.params.wishlistID }
-    ]
+      { _id: req.query.wishlistID || req.params.wishlistID },
+    ],
   });
 
   const group = await Wishlist.findOne(
     {
-      _id: req.query.wishlistID || req.params.wishlistID
+      _id: req.query.wishlistID || req.params.wishlistID,
     },
     { groups: 1 }
   ).populate({
@@ -71,9 +71,9 @@ const accessCheck = async (req, res, next) => {
     match: {
       $or: [
         { members: req.session.passport.user.email },
-        { admin: req.session.passport.user.email }
-      ]
-    }
+        { admin: req.session.passport.user.email },
+      ],
+    },
   });
 
   if (shared || owner || group) {
@@ -91,7 +91,7 @@ const sendNotification = async (newInvites, fullname, listID, listname) => {
   const params = {
     fullname,
     listname: listname,
-    list_link
+    list_link,
   };
 
   await sendEmail({
@@ -99,14 +99,14 @@ const sendNotification = async (newInvites, fullname, listID, listname) => {
     params: params,
     email: newInvites.join(),
     subject: `${fullname} invited you to see their wishlist`,
-    from: fullname
+    from: fullname,
   });
 };
 
 async function addItemToList(req, item_id, list_id) {
   const itemExists = await Wishlist.find({
     _id: list_id,
-    "items.item_id": item_id
+    "items.item_id": item_id,
   });
 
   if (itemExists.length > 0) {
@@ -121,7 +121,7 @@ async function addItemToList(req, item_id, list_id) {
     await Wishlist.updateOne(
       { _id: list_id },
       {
-        $push: { items: { item_id } }
+        $push: { items: { item_id } },
       }
     );
   }
@@ -133,14 +133,14 @@ async function checkDuplicates(title, url) {
 
   // Check if item exists in DB: any matching title or url
   const result = await Item.findOne({
-    $or: [{ title: title }, { url: url }]
+    $or: [{ title: title }, { url: url }],
   });
 
   if (result) {
     return {
       status: -1,
       err_msg: "This item has already been added by another user",
-      item: result
+      item: result,
     };
   }
 
@@ -149,7 +149,7 @@ async function checkDuplicates(title, url) {
 
 router.get("/create", authCheck, (req, res) => {
   res.render("pages/wishlist/createWishlist", {
-    user: req.session.passport.user
+    user: req.session.passport.user,
   });
 });
 
@@ -172,7 +172,7 @@ router.post("/create", authCheck, (req, res) => {
       errors,
       wishlistName,
       invites: null,
-      visibility
+      visibility,
     });
   } else {
     // initial validation passed
@@ -180,26 +180,26 @@ router.post("/create", authCheck, (req, res) => {
 
     Wishlist.find({
       owner: req.session.passport.user.email,
-      name: wishlistName
-    }).then(wishlist => {
+      name: wishlistName,
+    }).then((wishlist) => {
       if (wishlist.length != 0) {
         // user already has wishlist with entered name -> error
         errors.push({
           msg:
-            "You already created a wishlist with this name. Please try again with a different name."
+            "You already created a wishlist with this name. Please try again with a different name.",
         });
         res.render("pages/wishlist/createWishlist", {
           errors,
-          visibility
+          visibility,
         });
       } else {
         new Wishlist({
           name: wishlistName,
           owner: req.session.passport.user.email,
-          visibility: visibility
+          visibility: visibility,
         })
           .save()
-          .then(newWishlist => {
+          .then((newWishlist) => {
             res.redirect("/wishlist");
           });
       }
@@ -222,7 +222,7 @@ router.post("/update/", authCheck, ownerCheck, (req, res) => {
     }
   }
 
-  Wishlist.findById(wishlistID).then(async wishlist => {
+  Wishlist.findById(wishlistID).then(async (wishlist) => {
     if (wishlist) {
       if (wishlistName != wishlist.name) {
         wishlist.name = wishlistName;
@@ -230,12 +230,12 @@ router.post("/update/", authCheck, ownerCheck, (req, res) => {
       var oldSharedUsers = wishlist.sharedUsers;
       wishlist.sharedUsers = [];
 
-      usersList.forEach(function(user, index) {
+      usersList.forEach(function (user, index) {
         wishlist.sharedUsers.push(user.trim());
       });
 
       const fullname = `${req.session.passport.user.fname} ${req.session.passport.user.lname}`;
-      var newInvites = usersList.filter(member => {
+      var newInvites = usersList.filter((member) => {
         return !oldSharedUsers.includes(member);
       });
 
@@ -276,21 +276,21 @@ router.post("/delete/", authCheck, ownerCheck, async (req, res) => {
 router.post("/getlists", async (req, res) => {
   const groupID = req.body.groupID;
   const results = await Wishlist.find({
-    owner: req.session.passport.user.email
+    owner: req.session.passport.user.email,
   });
   const idObj = await Wishlist.find(
     { owner: req.session.passport.user.email },
     { _id: 1 }
   );
   var ids = [];
-  idObj.forEach(ele => {
+  idObj.forEach((ele) => {
     ids.push(ele._id);
   });
   const grps = await Group.findById(groupID, { wishlists: 1 });
 
   // Get the current list
   var currentList = ids
-    .filter(id => {
+    .filter((id) => {
       return grps.wishlists.includes(id);
     })
     .join();
@@ -303,9 +303,9 @@ router.get("/", authCheck, (req, res) => {
   Wishlist.find({
     $or: [
       { owner: req.session.passport.user.email },
-      { sharedUsers: req.session.passport.user.email }
-    ]
-  }).then(wishlists => {
+      { sharedUsers: req.session.passport.user.email },
+    ],
+  }).then((wishlists) => {
     if (wishlists.length == 0) {
       // user does not belong to any wishlists
       // add some type of message
@@ -313,20 +313,20 @@ router.get("/", authCheck, (req, res) => {
         user: req.session.passport.user,
         msg: "You do not have any wishlists.",
         myLists: [],
-        sharedLists: []
+        sharedLists: [],
       });
     } else {
       const sharedLists = wishlists.filter(
-        list => list.owner !== req.session.passport.user.email
+        (list) => list.owner !== req.session.passport.user.email
       );
       const myLists = wishlists.filter(
-        list => list.owner === req.session.passport.user.email
+        (list) => list.owner === req.session.passport.user.email
       );
       res.render("pages/wishlist/listWishlist", {
         user: req.session.passport.user,
         msg: "",
         sharedLists,
-        myLists
+        myLists,
       });
     }
   });
@@ -334,11 +334,11 @@ router.get("/", authCheck, (req, res) => {
 
 router.get("/manage/", authCheck, ownerCheck, (req, res) => {
   let wishlistID = req.query.wishlistID;
-  Wishlist.findById(wishlistID).then(wishlist => {
+  Wishlist.findById(wishlistID).then((wishlist) => {
     if (wishlist) {
       res.render("pages/wishlist/updateWishlist", {
         wishlist,
-        user: req.session.passport.user
+        user: req.session.passport.user,
       });
     }
   });
@@ -359,7 +359,7 @@ router.get("/view/", authCheck, accessCheck, async (req, res) => {
     errors,
     wishlist,
     wishlistItems: wishlist.items,
-    user: req.session.passport.user
+    user: req.session.passport.user,
   });
 });
 
@@ -379,7 +379,7 @@ router.post("/addListScraped", authCheck, async (req, res) => {
     img_url,
     labels,
     list_id,
-    category
+    category,
   } = req.body;
 
   // Check if the item has been added to the DB
@@ -397,7 +397,7 @@ router.post("/addListScraped", authCheck, async (req, res) => {
       price_url: price_url,
       url: url,
       labels: labelsList,
-      category: category
+      category: category,
     });
     const savedItem = await newItem.save();
 

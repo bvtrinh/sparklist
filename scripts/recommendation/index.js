@@ -30,23 +30,23 @@ async function addItemsToDB() {
     new rqs.Batch([
       new rqs.AddItemProperty("title", "string"),
       new rqs.AddItemProperty("labels", "set"),
-      new rqs.AddItemProperty("category", "string")
+      new rqs.AddItemProperty("category", "string"),
     ])
   );
   const items = await Item.find({});
   var requests = [];
   // Add item to DB
-  items.forEach(item => {
+  items.forEach((item) => {
     client.send(new rqs.AddItem(item._id));
     var itemId = item._id;
     var obj = {
       labels: item.labels,
       title: item.title,
-      category: item.category
+      category: item.category,
     };
     client.send(
       new rqs.RecommendItemsToItem(itemId, null, 4, {
-        scenario: "ItemRecommendation"
+        scenario: "ItemRecommendation",
       })
     );
     requests.push(new rqs.SetItemValues(itemId, obj, { cascadeCreate: true }));
@@ -60,8 +60,8 @@ async function updateRecomDB() {
   const items = await Item.find({});
 
   // Update ALL the items
-  items.forEach(async item => {
-    await updateRecomDB(item._id);
+  items.forEach(async (item) => {
+    await updateRecomItem(item._id);
   });
 }
 
@@ -70,11 +70,11 @@ async function getRecom(itemID) {
   var recommendation = await client.send(
     new rqs.RecommendItemsToItem(itemID, null, 4, {
       scenarios: "ItemRecommendation",
-      returnProperties: true
+      returnProperties: true,
     })
   );
   var recomms = [];
-  recommendation.recomms.forEach(item => {
+  recommendation.recomms.forEach((item) => {
     recomms.push(item.id);
   });
   return recomms;
@@ -94,7 +94,7 @@ async function addRecomDB(item) {
   var obj = {
     labels: item.labels,
     title: item.title,
-    category: item.category
+    category: item.category,
   };
 
   await client.send(
@@ -103,7 +103,7 @@ async function addRecomDB(item) {
 
   await client.send(
     new rqs.RecommendItemsToItem(item._id, null, 4, {
-      scenario: "ItemRecommendation"
+      scenario: "ItemRecommendation",
     })
   );
 }
@@ -116,5 +116,5 @@ module.exports = {
   getRecom,
   addRecomDB,
   updateRecomItem,
-  deleteItem
+  deleteItem,
 };
