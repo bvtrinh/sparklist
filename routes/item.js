@@ -145,6 +145,7 @@ router.get("/search/:page", async (req, res) => {
     searchParams.filters.title = new RegExp(searchParams.keyword, "i");
   }
 
+  var foundItems = await Item.find(isSearch ? searchParams.filters : {});
   Item.find(isSearch ? searchParams.filters : {})
     .skip(perPage * page - perPage)
     .limit(perPage)
@@ -152,7 +153,6 @@ router.get("/search/:page", async (req, res) => {
     .exec(function(err, items) {
       Item.countDocuments().exec(function(err, count) {
         if (err) return next(err);
-
         res.render("pages/item/search", {
           user,
           items,
@@ -164,7 +164,7 @@ router.get("/search/:page", async (req, res) => {
           keyword: isSearch ? searchParams.keyword : "",
           sort_type: isSearch ? searchParams.sort_type : null,
           current: page,
-          pages: Math.ceil(count / perPage)
+          pages: Math.ceil(foundItems.length / perPage)
         });
       });
     });
@@ -200,6 +200,7 @@ router.post("/search/:page", async (req, res) => {
   };
 
   try {
+    var foundItems = await Item.find(filters);
     Item.find(filters)
       .skip(perPage * page - perPage)
       .limit(perPage)
@@ -218,7 +219,7 @@ router.post("/search/:page", async (req, res) => {
             categoryKeys,
             curr_category,
             current: page,
-            pages: Math.ceil(count / perPage),
+            pages: Math.ceil(foundItems.length / perPage),
             err_msg: items.length <= 0 ? "No search results found" : null
           });
         });
