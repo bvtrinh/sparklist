@@ -453,8 +453,12 @@ router.post("/find", async (req, res) => {
   // check if url is for amazon item
   if (searchQuery.includes("amazon.c")) {
     // use price finder to get item info
+    var items = [];
     var item = await scrapeAmazon(searchQuery);
-    var items = await scrapeGoogleShop(item.title);
+    var googleItems = await scrapeGoogleShop(item.title);
+    if (googleItems !== undefined) {
+      items = googleItems;
+    }
     items.push(item);
   } else if (
     searchQuery.includes("http") ||
