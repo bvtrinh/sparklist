@@ -45,7 +45,7 @@
                     value="<%= typeof min_price !== 'undefined' ? min_price : 0 %>">
                 <div class="py-2">&nbsp - $</div>
                 <input type="number" class="form-control range-price" name="max_price" id="max-price"
-                    value="<%= typeof max_price !== 'undefined' ? max_price : 500 %>">
+                    value="<%= typeof max_price !== 'undefined' ? Math.ceil(max_price) : 500 %>">
             </div>
             <div class="row justify-content-between">
                 <div class="mt-4 col-md-3" id="slider-range"></div>
