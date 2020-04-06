@@ -149,8 +149,8 @@ router.get("/search/:page", async (req, res) => {
     .skip(perPage * page - perPage)
     .limit(perPage)
     .sort(isSearch ? searchParams.sort_type : "-count")
-    .exec(function (err, items) {
-      Item.countDocuments().exec(function (err, count) {
+    .exec(async function (err, items) {
+      Item.countDocuments().exec(async function (err, count) {
         if (err) return next(err);
         res.render("pages/item/search", {
           user,
@@ -159,7 +159,7 @@ router.get("/search/:page", async (req, res) => {
           categoryKeys,
           curr_category: isSearch ? searchParams.curr_category : null,
           min_price: isSearch ? searchParams.min_price : 0,
-          max_price: isSearch ? searchParams.max_price : 500,
+          max_price: isSearch ? searchParams.max_price : await getMaxPrice(),
           keyword: isSearch ? searchParams.keyword : "",
           sort_type: isSearch ? searchParams.sort_type : null,
           current: page,
@@ -367,7 +367,7 @@ async function scrapeGoogleShop(itemName) {
     });
 
     // limit number of items scraped to 5
-    var maxItems = itemLinks.length > 4 ? 4 : itemLinks.length;
+    var maxItems = itemLinks.length > 3 ? 3 : itemLinks.length;
 
     let items = [];
     for (var i = 0; i < maxItems; i++) {
