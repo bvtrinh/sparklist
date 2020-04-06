@@ -49,6 +49,7 @@ const categoryKeys = [
   "Electronics",
   "Home and Kitchen",
   "Movie",
+  "Other",
   "Sports Equipment",
   "Tools",
   "Video Games",
@@ -267,7 +268,7 @@ router.post("/homeSearch", async (req, res) => {
       sort_type: null,
       sorts,
       current: page,
-      pages: Math.ceil(items.length / perPage) 
+      pages: Math.ceil(items.length / perPage),
     });
   } catch (err) {
     return res.render("pages/item/search", {
