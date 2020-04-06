@@ -240,7 +240,7 @@ router.post("/update/", authCheck, ownerCheck, (req, res) => {
       });
 
       if (newInvites.length > 0) {
-        // sendNotification(newInvites, fullname, wishlistID, wishlist.name);
+        sendNotification(newInvites, fullname, wishlistID, wishlist.name);
       }
 
       if (visibility != undefined && visibility != wishlist.visibility) {

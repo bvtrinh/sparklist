@@ -118,7 +118,7 @@ router.post("/create", authCheck, (req, res) => {
         });
       } else {
         const fullname = `${req.session.passport.user.fname} ${req.session.passport.user.lname}`;
-        // sendNotification(invites, fullname, groupName);
+        sendNotification(invites, fullname, groupName);
         new Group({
           name: groupName,
           admin: req.session.passport.user.email,
@@ -188,7 +188,7 @@ router.post("/update/", authCheck, (req, res) => {
         }
 
         if (newMembers.length > 0) {
-          // sendNotification(newMembers, fullname, group.name);
+          sendNotification(newMembers, fullname, group.name);
         }
       }
 
