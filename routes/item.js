@@ -241,11 +241,20 @@ router.post("/search/:page", async (req, res) => {
 
 router.post("/homeSearch", async (req, res) => {
   const { keyword } = req.body;
+  var perPage = 12;
+  var page = req.params.page || 1;
 
   const user = getUserInfo(req);
   const filters = {
     title: new RegExp(keyword, "i"),
   };
+
+  if (req.session.search) {
+    isSearch = true;
+    searchParams = req.session.search;
+    searchParams.filters.title = new RegExp(searchParams.keyword, "i");
+  }
+
   try {
     const items = await Item.find(filters);
     if (items.length <= 0) throw "No search results found";
@@ -253,14 +262,20 @@ router.post("/homeSearch", async (req, res) => {
       user,
       items,
       keyword,
+      categoryKeys,
+      curr_category: isSearch ? searchParams.curr_category : null,
       sort_type: null,
       sorts,
+      current: page,
+      pages: Math.ceil(items.length / perPage) 
     });
   } catch (err) {
     return res.render("pages/item/search", {
       keyword,
       sort_type: null,
       sorts,
+      categoryKeys,
+      curr_category: isSearch ? searchParams.curr_category : null,
       user,
       items: null,
       err_msg: err,
