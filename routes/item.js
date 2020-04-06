@@ -367,7 +367,7 @@ async function scrapeGoogleShop(itemName) {
     });
 
     // limit number of items scraped to 5
-    var maxItems = itemLinks.length > 5 ? 5 : itemLinks.length;
+    var maxItems = itemLinks.length > 4 ? 4 : itemLinks.length;
 
     let items = [];
     for (var i = 0; i < maxItems; i++) {
